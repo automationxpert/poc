@@ -1,0 +1,30 @@
+[
+  {
+    "Name": "Buffer",
+    "Environment": "Production",
+    "Tenant": "Shared",
+    "Folder": "/app/bin",
+    "BU": "FinTech",
+    "Uptime": "99.9%",
+    "Restartgroup": "RG-01",
+    "MaintenanceGroup": "MG-Alpha",
+    "Restart Authorization": "Approved",
+    "FreeDiskSpace": "45GB",
+    "Username": "admin_user",
+    "ChecksPassed": "Yes"
+  },
+  {
+    "Name": "Web-Portal",
+    "Environment": "Staging",
+    "Tenant": "Dedicated",
+    "Folder": "/var/www",
+    "BU": "Marketing",
+    "Uptime": "95.2%",
+    "Restartgroup": "RG-02",
+    "MaintenanceGroup": "MG-Beta",
+    "Restart Authorization": "Pending",
+    "FreeDiskSpace": "12GB",
+    "Username": "web_mgr",
+    "ChecksPassed": "No"
+  }
+]
