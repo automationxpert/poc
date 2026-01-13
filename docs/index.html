@@ -19,21 +19,28 @@
 
         body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
         .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        
         .main-layout { display: flex; flex: 1; padding: 1.5rem; gap: 1.5rem; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         
+        /* Summary Ribbon */
+        .summary-ribbon { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-color); }
+        .stat-card h3 { margin: 0; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
+        .stat-card .value { font-size: 1.75rem; font-weight: 800; margin-top: 0.25rem; }
+
         .sidebar { width: 260px; flex-shrink: 0; background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); height: fit-content; }
         .sidebar-section { margin-bottom: 1.5rem; }
         .sidebar-section h4 { margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: #64748b; }
 
         .content { flex-grow: 1; min-width: 0; }
-        input[type="text"] { padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); width: 100%; box-sizing: border-box; margin-bottom: 1rem; }
+        input[type="text"] { padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); width: 100%; box-sizing: border-box; margin-bottom: 1rem; font-size: 1rem; }
 
         .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; white-space: nowrap; }
         th { background: var(--hover-bg); padding: 1rem; text-align: left; font-size: 0.75rem; cursor: pointer; border-bottom: 1px solid var(--border-color); }
         td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
         
-        .in-maintenance { opacity: 0.5; background: #f1f5f9 !important; border-left: 4px solid #64748b; }
         .badge { padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; }
         .health-red { background: #fee2e2; color: #991b1b; }
         .health-green { background: #dcfce7; color: #166534; }
@@ -49,9 +56,8 @@
 <div class="header">
     <h2 style="margin:0;">CloudOps Dashboard</h2>
     <div style="display: flex; gap: 20px; align-items: center;">
-        <div id="refresh-status" style="font-size: 0.75rem; color: #64748b;">Auto-refresh: <span id="timer">Off</span></div>
         <div id="update-time" style="font-size: 0.85rem;">Checking freshness...</div>
-        <button class="btn" style="background:var(--border-color); border:none; padding:8px; border-radius:6px; cursor:pointer;" id="theme-toggle">🌓</button>
+        <button class="btn" style="background:var(--border-color); border:none; padding:8px; border-radius:6px; cursor:pointer;" id="theme-toggle">🌓 Theme</button>
     </div>
 </div>
 
@@ -67,17 +73,29 @@
         </div>
         <div class="sidebar-section">
             <h4>Controls</h4>
-            <button onclick="toggleAutoRefresh()" style="width:100%; margin-bottom:10px; padding:8px;">Toggle Auto-Refresh</button>
-            <button onclick="exportToCSV()" style="width:100%; padding:8px;">Export CSV</button>
-        </div>
-        <div class="sidebar-section">
-            <h4>Status Summary</h4>
-            <div id="stats" style="font-size: 0.85rem; color: #64748b;"></div>
+            <button onclick="init()" style="width:100%; margin-bottom:10px; padding:8px; cursor:pointer;">🔄 Refresh Data</button>
+            <button onclick="exportToCSV()" style="width:100%; padding:8px; cursor:pointer;">📂 Export CSV</button>
         </div>
     </div>
 
     <div class="content">
-        <input type="text" id="search-bar" placeholder="Search systems, tenants, or owners...">
+        <div class="summary-ribbon">
+            <div class="stat-card" onclick="resetFilters()">
+                <h3>Total Systems</h3>
+                <div class="value" id="stat-total">0</div>
+            </div>
+            <div class="stat-card" onclick="filterByHealth('health-red')">
+                <h3>Critical Health</h3>
+                <div class="value" id="stat-critical" style="color: var(--red);">0</div>
+            </div>
+            <div class="stat-card" onclick="filterByDisk()">
+                <h3>Low Disk (< 10GB)</h3>
+                <div class="value" id="stat-disk" style="color: var(--orange);">0</div>
+            </div>
+        </div>
+
+        <input type="text" id="search-bar" placeholder="Universal search (Host, BU, Tenant, User)...">
+        
         <div class="table-container">
             <table>
                 <thead id="table-head"></thead>
@@ -91,7 +109,6 @@
     let rawSystems = [];
     let currentData = [];
     let maintenanceList = JSON.parse(localStorage.getItem('maint_list') || '[]');
-    let refreshInterval = null;
 
     async function init() {
         try {
@@ -100,23 +117,31 @@
             rawSystems = data.Systems;
             
             checkDataFreshness(data.LastUpdated);
+            updateSummaryCards();
             handleInitialState();
         } catch (e) {
             document.getElementById('table-body').innerHTML = `<tr><td colspan="5">Error loading data.json</td></tr>`;
         }
     }
 
+    function updateSummaryCards() {
+        document.getElementById('stat-total').innerText = rawSystems.length;
+        document.getElementById('stat-critical').innerText = rawSystems.filter(s => {
+            const [p, t] = s.ChecksPassed.split('/').map(Number);
+            return (p / t) < 0.5;
+        }).length;
+        document.getElementById('stat-disk').innerText = rawSystems.filter(s => parseInt(s.FreeDiskSpace) < 10).length;
+    }
+
     function checkDataFreshness(timestamp) {
         const updateEl = document.getElementById('update-time');
         const lastUpdate = new Date(timestamp);
         const hoursOld = (new Date() - lastUpdate) / (1000 * 60 * 60);
-        
-        updateEl.innerText = `Last Scan: ${lastUpdate.toLocaleString()}`;
+        updateEl.innerText = `Scan: ${lastUpdate.toLocaleString()}`;
         if (hoursOld > 24) {
             updateEl.style.color = "var(--red)";
             updateEl.style.fontWeight = "bold";
             updateEl.style.animation = "pulse 2s infinite";
-            updateEl.innerText += " (STALE)";
         } else {
             updateEl.style.color = "var(--green)";
             updateEl.style.animation = "none";
@@ -126,8 +151,7 @@
     function handleInitialState() {
         const params = new URLSearchParams(window.location.search);
         const nameFilter = params.get('name')?.toLowerCase();
-        
-        currentData = nameFilter ? rawSystems.filter(s => s.Name.toLowerCase() === nameFilter) : rawSystems.filter(s => s.Name === 'Buffer');
+        currentData = nameFilter ? rawSystems.filter(s => s.Name.toLowerCase() === nameFilter) : rawSystems.filter(s => s.Name.includes('Buffer'));
         renderTable(currentData);
     }
 
@@ -135,6 +159,7 @@
         const body = document.getElementById('table-body');
         const head = document.getElementById('table-head');
         const groupKey = document.getElementById('group-select').value;
+        if (rawSystems.length === 0) return;
         const cols = Object.keys(rawSystems[0]);
 
         head.innerHTML = `<tr>${cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('')}</tr>`;
@@ -152,17 +177,17 @@
                 html += rows.map(row => renderRow(row, cols)).join('');
             }
         }
-        body.innerHTML = html || '<tr><td colspan="100%" style="text-align:center; padding:2rem;">No results found</td></tr>';
-        document.getElementById('stats').innerHTML = `Total: ${data.length}<br>Healthy: ${data.filter(s => s.ChecksPassed === '5/5').length}`;
+        body.innerHTML = html || '<tr><td colspan="100%" style="text-align:center; padding:2rem;">No matching systems found</td></tr>';
     }
 
     function renderRow(row, cols) {
         const isMaint = maintenanceList.includes(row.Name);
-        return `<tr class="${isMaint ? 'in-maintenance' : ''}">${cols.map(c => {
+        return `<tr class="${isMaint ? 'in-maintenance' : ''}" style="${isMaint ? 'opacity:0.5' : ''}">${cols.map(c => {
             let val = row[c] || '';
             if (c === 'ChecksPassed') {
                 const [p, t] = val.split('/').map(Number);
-                const style = p/t === 1 ? 'health-green' : p/t >= 0.8 ? 'health-yellow' : 'health-red';
+                const ratio = p / t;
+                const style = ratio === 1 ? 'health-green' : ratio >= 0.8 ? 'health-yellow' : 'health-red';
                 return `<td><span class="badge ${style}">${val}</span></td>`;
             }
             if (c === 'FreeDiskSpace') {
@@ -174,32 +199,39 @@
         }).join('')}</tr>`;
     }
 
+    // --- Quick Filter Functions ---
+    function filterByHealth(className) {
+        currentData = rawSystems.filter(s => {
+            const [p, t] = s.ChecksPassed.split('/').map(Number);
+            return (p / t) < 0.5;
+        });
+        renderTable(currentData);
+    }
+
+    function filterByDisk() {
+        currentData = rawSystems.filter(s => parseInt(s.FreeDiskSpace) < 10);
+        renderTable(currentData);
+    }
+
+    function resetFilters() {
+        currentData = [...rawSystems];
+        renderTable(currentData);
+        document.getElementById('search-bar').value = '';
+    }
+
     function toggleMaint(id) {
         maintenanceList = maintenanceList.includes(id) ? maintenanceList.filter(x => x !== id) : [...maintenanceList, id];
         localStorage.setItem('maint_list', JSON.stringify(maintenanceList));
         renderTable(currentData);
     }
 
-    function copyText(txt) { navigator.clipboard.writeText(txt); alert('Copied!'); }
+    function copyText(txt) { navigator.clipboard.writeText(txt); }
 
     document.getElementById('search-bar').addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
         currentData = rawSystems.filter(s => Object.values(s).some(v => String(v).toLowerCase().includes(term)));
         renderTable(currentData);
     });
-
-    function toggleAutoRefresh() {
-        const timerEl = document.getElementById('timer');
-        if (refreshInterval) {
-            clearInterval(refreshInterval); refreshInterval = null; timerEl.innerText = "Off";
-        } else {
-            let sec = 60;
-            refreshInterval = setInterval(() => {
-                sec--; timerEl.innerText = sec + "s";
-                if (sec <= 0) { init(); sec = 60; }
-            }, 1000);
-        }
-    }
 
     const toggleBtn = document.getElementById('theme-toggle');
     toggleBtn.addEventListener('click', () => {
@@ -208,6 +240,11 @@
         localStorage.setItem('theme', theme);
     });
     if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+    function sortTable(c) {
+        currentData.sort((a,b) => a[c] > b[c] ? 1 : -1);
+        renderTable(currentData);
+    }
 
     function exportToCSV() {
         const cols = Object.keys(rawSystems[0]);
@@ -219,4 +256,5 @@
     init();
 </script>
 </body>
-</html>
+                </html>
+                    
