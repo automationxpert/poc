@@ -48,8 +48,10 @@ The dashboard dynamically renders headers based on your JSON keys. Your PowerShe
     }
   ]
 }
+```
 
-🛠️ Deployment Instructions
+## 🛠️ Deployment Instructions
+
  * Upload Files: Push index.html and data.json to your GitHub Repository.
  * Enable Pages: * Navigate to Settings > Pages.
    * Select Deploy from a branch.
@@ -64,4 +66,5 @@ Share specific views with team members using URL parameters:
  * ?name=Server01 - Show specific server.
  * ?environment=Production - Show only production systems.
  * ?bu=Engineering - Show only engineering systems.
+   
 Built with ❤️ for DevOps & System Administrators.
