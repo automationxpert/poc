@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Inventory Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --accent-color: #2563eb;
+            --border-color: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #111827;
+            --card-bg: #1f2937;
+            --text-color: #f9fafb;
+            --accent-color: #60a5fa;
+            --border-color: #374151;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        button#theme-toggle {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: rgba(0,0,0,0.05);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            padding: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>System Details</h1>
+        <button id="theme-toggle">Toggle Dark Mode</button>
+    </div>
+
+    <div class="table-container" id="content">
+        <p style="padding: 20px;">Loading data...</p>
+    </div>
+</div>
+
+<script>
+    // --- Theme Toggle Logic ---
+    const toggleBtn = document.getElementById('theme-toggle');
+    toggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    // --- Data Fetching & Query Logic ---
+    async function init() {
+        try {
+            const response = await fetch('data.json');
+            const data = await response.json();
+            
+            // Get URL Parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Priority 1: Check if "Name" is in URL. Priority 2: Default to "Buffer"
+            const searchName = urlParams.get('Name') || 'Buffer';
+
+            // Filter data
+            const result = data.find(item => item.Name.toLowerCase() === searchName.toLowerCase());
+
+            if (result) {
+                renderTable(result);
+            } else {
+                document.getElementById('content').innerHTML = `<div class="error-msg">No record found for: ${searchName}</div>`;
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            document.getElementById('content').innerHTML = `<div class="error-msg">Error loading data.json. Ensure the file exists.</div>`;
+        }
+    }
+
+    function renderTable(item) {
+        let html = `<table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+        
+        for (const [key, value] of Object.entries(item)) {
+            html += `<tr>
+                        <td><strong>${key}</strong></td>
+                        <td>${value}</td>
+                    </tr>`;
+        }
+
+        html += `</tbody></table>`;
+        document.getElementById('content').innerHTML = html;
+    }
+
+    init();
+</script>
+
+</body>
+</html>
