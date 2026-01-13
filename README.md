@@ -67,4 +67,4 @@ Share specific views with team members using URL parameters:
  * ?environment=Production - Show only production systems.
  * ?bu=Engineering - Show only engineering systems.
    
-Built with ❤️ for DevOps & System Administrators.
+<p><centre>Built with ❤️ for DevOps & System Administrators.</centre><p>
