@@ -3,193 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise System Health</title>
+    <title>Enterprise System Dashboard</title>
     <style>
         :root {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --accent-color: #2563eb;
-            --border-color: #e2e8f0;
-            --hover-bg: #f1f5f9;
+            --bg-color: #f1f5f9; --card-bg: #ffffff; --text-color: #0f172a;
+            --accent-color: #2563eb; --border-color: #e2e8f0; --hover-bg: #f8fafc;
             --red: #ef4444; --orange: #f97316; --yellow: #eab308; --green: #22c55e;
         }
-
         [data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f1f5f9;
-            --accent-color: #38bdf8;
-            --border-color: #334155;
-            --hover-bg: #334155;
+            --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
+            --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
         }
 
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 2rem; transition: background 0.3s; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        /* Dashboard UI */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .controls { display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .main-layout { display: flex; flex: 1; padding: 1.5rem; gap: 1.5rem; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         
-        input[type="text"] {
-            padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);
-            background: var(--card-bg); color: var(--text-color); flex-grow: 1; font-size: 1rem;
-        }
+        .sidebar { width: 260px; flex-shrink: 0; background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); height: fit-content; }
+        .sidebar-section { margin-bottom: 1.5rem; }
+        .sidebar-section h4 { margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: #64748b; }
 
-        .btn { padding: 0.75rem 1.25rem; cursor: pointer; border: none; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        .btn-primary { background: var(--accent-color); color: white; }
-        .btn-secondary { background: var(--border-color); color: var(--text-color); }
+        .content { flex-grow: 1; min-width: 0; }
+        input[type="text"] { padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); width: 100%; box-sizing: border-box; margin-bottom: 1rem; }
 
-        /* Stats Bar */
-        .stats-bar { font-size: 0.9rem; margin-bottom: 1rem; color: #64748b; font-weight: 500; }
-
-        /* Table Styling */
-        .table-container { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px -5px rgba(0,0,0,0.1); overflow: auto; border: 1px solid var(--border-color); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background: rgba(0,0,0,0.02); padding: 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; white-space: nowrap; border-bottom: 2px solid var(--border-color); }
-        th:hover { color: var(--accent-color); }
-        td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
-
-        /* Status Badges */
-        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th { background: var(--hover-bg); padding: 1rem; text-align: left; font-size: 0.75rem; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
         
-        /* Health colors */
-        .health-red { background: #fee2e2; color: #991b1b; } .health-red .status-dot { background: var(--red); }
-        .health-orange { background: #ffedd5; color: #9a3412; } .health-orange .status-dot { background: var(--orange); }
-        .health-yellow { background: #fef9c3; color: #854d0e; } .health-yellow .status-dot { background: var(--yellow); }
-        .health-green { background: #dcfce7; color: #166534; } .health-green .status-dot { background: var(--green); }
+        .in-maintenance { opacity: 0.5; background: #f1f5f9 !important; border-left: 4px solid #64748b; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; }
+        .health-red { background: #fee2e2; color: #991b1b; }
+        .health-green { background: #dcfce7; color: #166534; }
+        .health-yellow { background: #fef9c3; color: #854d0e; }
+        
+        .copy-btn, .maint-btn { padding: 4px 8px; border-radius: 4px; background: var(--hover-bg); border: 1px solid var(--border-color); cursor: pointer; font-size: 10px; margin-left: 4px; }
+        .disk-bar-bg { width: 80px; height: 6px; background: #e2e8f0; border-radius: 3px; margin-top: 4px; }
+        .disk-bar-fill { height: 100%; border-radius: 3px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>System Inventory</h1>
-        <button class="btn btn-secondary" id="theme-toggle">🌓 Mode</button>
+<div class="header">
+    <h2 style="margin:0;">CloudOps Dashboard</h2>
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <div id="refresh-status" style="font-size: 0.75rem; color: #64748b;">Auto-refresh: <span id="timer">Off</span></div>
+        <div id="update-time" style="font-size: 0.85rem;">Checking freshness...</div>
+        <button class="btn" style="background:var(--border-color); border:none; padding:8px; border-radius:6px; cursor:pointer;" id="theme-toggle">🌓</button>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <h4>Grouping</h4>
+            <select id="group-select" onchange="renderTable(currentData)" style="width:100%; padding: 8px; border-radius: 6px;">
+                <option value="none">No Grouping</option>
+                <option value="Environment">By Environment</option>
+                <option value="BU">By BU</option>
+            </select>
+        </div>
+        <div class="sidebar-section">
+            <h4>Controls</h4>
+            <button onclick="toggleAutoRefresh()" style="width:100%; margin-bottom:10px; padding:8px;">Toggle Auto-Refresh</button>
+            <button onclick="exportToCSV()" style="width:100%; padding:8px;">Export CSV</button>
+        </div>
+        <div class="sidebar-section">
+            <h4>Status Summary</h4>
+            <div id="stats" style="font-size: 0.85rem; color: #64748b;"></div>
+        </div>
     </div>
 
-    <div class="controls">
-        <input type="text" id="search-bar" placeholder="Filter by name, BU, tenant, group...">
-        <button class="btn btn-primary" onclick="exportToCSV()">📂 Download CSV</button>
-    </div>
-
-    <div class="stats-bar" id="stats">Showing 0 systems</div>
-
-    <div class="table-container">
-        <table id="inventory-table">
-            <thead><tr id="table-head"></tr></thead>
-            <tbody id="table-body"></tbody>
-        </table>
-        <div id="no-data" style="display:none; padding: 3rem; text-align: center; color: #64748b;">No matching results found.</div>
+    <div class="content">
+        <input type="text" id="search-bar" placeholder="Search systems, tenants, or owners...">
+        <div class="table-container">
+            <table>
+                <thead id="table-head"></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-    let rawData = [];
+    let rawSystems = [];
     let currentData = [];
+    let maintenanceList = JSON.parse(localStorage.getItem('maint_list') || '[]');
+    let refreshInterval = null;
 
     async function init() {
         try {
             const response = await fetch('data.json');
-            rawData = await response.json();
+            const data = await response.json();
+            rawSystems = data.Systems;
             
-            // Handle URL Queries
-            const urlParams = new URLSearchParams(window.location.search);
-            const params = {};
-            for (const [k, v] of urlParams.entries()) params[k.toLowerCase()] = v.toLowerCase();
-
-            const keys = Object.keys(rawData[0] || {});
-            let hasFilter = false;
-            
-            currentData = rawData.filter(item => {
-                let match = true;
-                keys.forEach(key => {
-                    const lowKey = key.toLowerCase();
-                    if (params[lowKey] && String(item[key]).toLowerCase() !== params[lowKey]) match = false;
-                });
-                if (match && Object.keys(params).length > 0) hasFilter = true;
-                return match;
-            });
-
-            if (!hasFilter) {
-                currentData = rawData.filter(item => item.Name === 'Buffer');
-            }
-
-            renderTable(currentData);
+            checkDataFreshness(data.LastUpdated);
+            handleInitialState();
         } catch (e) {
-            document.getElementById('table-body').innerHTML = `<tr><td colspan="10">Error loading data.json</td></tr>`;
+            document.getElementById('table-body').innerHTML = `<tr><td colspan="5">Error loading data.json</td></tr>`;
         }
     }
 
-    function getHealthClass(value) {
-        if (!value || !value.includes('/')) return '';
-        const [pass, total] = value.split('/').map(Number);
-        const pct = (pass / total) * 100;
+    function checkDataFreshness(timestamp) {
+        const updateEl = document.getElementById('update-time');
+        const lastUpdate = new Date(timestamp);
+        const hoursOld = (new Date() - lastUpdate) / (1000 * 60 * 60);
         
-        if (pct === 100) return 'health-green';
-        if (pct >= 80) return 'health-yellow';
-        if (pct >= 50) return 'health-orange';
-        return 'health-red';
-    }
-
-    function renderTable(data) {
-        const head = document.getElementById('table-head');
-        const body = document.getElementById('table-body');
-        const stats = document.getElementById('stats');
-        
-        if (data.length === 0) {
-            body.innerHTML = ""; 
-            document.getElementById('no-data').style.display = "block";
-            stats.innerText = "Showing 0 systems";
-            return;
+        updateEl.innerText = `Last Scan: ${lastUpdate.toLocaleString()}`;
+        if (hoursOld > 24) {
+            updateEl.style.color = "var(--red)";
+            updateEl.style.fontWeight = "bold";
+            updateEl.style.animation = "pulse 2s infinite";
+            updateEl.innerText += " (STALE)";
+        } else {
+            updateEl.style.color = "var(--green)";
+            updateEl.style.animation = "none";
         }
-        document.getElementById('no-data').style.display = "none";
-
-        const cols = Object.keys(data[0]);
-        head.innerHTML = cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('');
-
-        body.innerHTML = data.map(row => {
-            return `<tr>${cols.map(c => {
-                let val = row[c] || '';
-                if (c === 'ChecksPassed') {
-                    const hClass = getHealthClass(val);
-                    return `<td><span class="badge ${hClass}"><span class="status-dot"></span>${val}</span></td>`;
-                }
-                return `<td>${val}</td>`;
-            }).join('')}</tr>`;
-        }).join('');
-
-        stats.innerText = `Showing ${data.length} system(s)`;
     }
 
-    // --- Dynamic Search ---
-    document.getElementById('search-bar').addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = rawData.filter(item => 
-            Object.values(item).some(val => String(val).toLowerCase().includes(term))
-        );
-        renderTable(filtered);
-    });
-
-    // --- Simple Sorting ---
-    let sortDir = 1;
-    function sortTable(col) {
-        sortDir *= -1;
-        currentData.sort((a, b) => (a[col] > b[col] ? 1 : -1) * sortDir);
+    function handleInitialState() {
+        const params = new URLSearchParams(window.location.search);
+        const nameFilter = params.get('name')?.toLowerCase();
+        
+        currentData = nameFilter ? rawSystems.filter(s => s.Name.toLowerCase() === nameFilter) : rawSystems.filter(s => s.Name === 'Buffer');
         renderTable(currentData);
     }
 
-    function exportToCSV() {
-        const cols = Object.keys(rawData[0]);
-        const csv = [cols.join(','), ...rawData.map(r => cols.map(c => `"${r[c]}"`).join(','))].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'inventory_report.csv'; a.click();
+    function renderTable(data) {
+        const body = document.getElementById('table-body');
+        const head = document.getElementById('table-head');
+        const groupKey = document.getElementById('group-select').value;
+        const cols = Object.keys(rawSystems[0]);
+
+        head.innerHTML = `<tr>${cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('')}</tr>`;
+        
+        let html = '';
+        if (groupKey === 'none') {
+            html = data.map(row => renderRow(row, cols)).join('');
+        } else {
+            const groups = data.reduce((acc, row) => {
+                acc[row[groupKey]] = [...(acc[row[groupKey]] || []), row];
+                return acc;
+            }, {});
+            for (const [name, rows] of Object.entries(groups)) {
+                html += `<tr style="background:#64748b22; font-weight:bold;"><td colspan="${cols.length}">${name} (${rows.length})</td></tr>`;
+                html += rows.map(row => renderRow(row, cols)).join('');
+            }
+        }
+        body.innerHTML = html || '<tr><td colspan="100%" style="text-align:center; padding:2rem;">No results found</td></tr>';
+        document.getElementById('stats').innerHTML = `Total: ${data.length}<br>Healthy: ${data.filter(s => s.ChecksPassed === '5/5').length}`;
     }
 
-    // --- Theme Logic ---
+    function renderRow(row, cols) {
+        const isMaint = maintenanceList.includes(row.Name);
+        return `<tr class="${isMaint ? 'in-maintenance' : ''}">${cols.map(c => {
+            let val = row[c] || '';
+            if (c === 'ChecksPassed') {
+                const [p, t] = val.split('/').map(Number);
+                const style = p/t === 1 ? 'health-green' : p/t >= 0.8 ? 'health-yellow' : 'health-red';
+                return `<td><span class="badge ${style}">${val}</span></td>`;
+            }
+            if (c === 'FreeDiskSpace') {
+                const num = parseInt(val);
+                return `<td>${val}<div class="disk-bar-bg"><div class="disk-bar-fill" style="width:${Math.min(num, 100)}%; background:${num < 10 ? 'var(--red)' : 'var(--green)'}"></div></div></td>`;
+            }
+            if (c === 'Name') return `<td><strong>${val}</strong> <button class="copy-btn" onclick="copyText('${val}')">📋</button> <button class="maint-btn" onclick="toggleMaint('${val}')">${isMaint ? '✅' : '🛠️'}</button></td>`;
+            return `<td>${val}</td>`;
+        }).join('')}</tr>`;
+    }
+
+    function toggleMaint(id) {
+        maintenanceList = maintenanceList.includes(id) ? maintenanceList.filter(x => x !== id) : [...maintenanceList, id];
+        localStorage.setItem('maint_list', JSON.stringify(maintenanceList));
+        renderTable(currentData);
+    }
+
+    function copyText(txt) { navigator.clipboard.writeText(txt); alert('Copied!'); }
+
+    document.getElementById('search-bar').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        currentData = rawSystems.filter(s => Object.values(s).some(v => String(v).toLowerCase().includes(term)));
+        renderTable(currentData);
+    });
+
+    function toggleAutoRefresh() {
+        const timerEl = document.getElementById('timer');
+        if (refreshInterval) {
+            clearInterval(refreshInterval); refreshInterval = null; timerEl.innerText = "Off";
+        } else {
+            let sec = 60;
+            refreshInterval = setInterval(() => {
+                sec--; timerEl.innerText = sec + "s";
+                if (sec <= 0) { init(); sec = 60; }
+            }, 1000);
+        }
+    }
+
     const toggleBtn = document.getElementById('theme-toggle');
     toggleBtn.addEventListener('click', () => {
         const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -197,6 +208,13 @@
         localStorage.setItem('theme', theme);
     });
     if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+    function exportToCSV() {
+        const cols = Object.keys(rawSystems[0]);
+        const csv = [cols.join(','), ...rawSystems.map(r => cols.map(c => `"${r[c]}"`).join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'inventory.csv'; a.click();
+    }
 
     init();
 </script>
