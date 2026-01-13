@@ -3,176 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Inventory Dashboard</title>
+    <title>Enterprise System Health</title>
     <style>
         :root {
-            --bg-color: #f4f7f6;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-color: #333;
+            --text-color: #1e293b;
             --accent-color: #2563eb;
-            --border-color: #e5e7eb;
+            --border-color: #e2e8f0;
+            --hover-bg: #f1f5f9;
+            --red: #ef4444; --orange: #f97316; --yellow: #eab308; --green: #22c55e;
         }
 
         [data-theme="dark"] {
-            --bg-color: #111827;
-            --card-bg: #1f2937;
-            --text-color: #f9fafb;
-            --accent-color: #60a5fa;
-            --border-color: #374151;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --accent-color: #38bdf8;
+            --border-color: #334155;
+            --hover-bg: #334155;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 2rem;
-            transition: all 0.3s ease;
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 2rem; transition: background 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Dashboard UI */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .controls { display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; }
+        
+        input[type="text"] {
+            padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);
+            background: var(--card-bg); color: var(--text-color); flex-grow: 1; font-size: 1rem;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .btn { padding: 0.75rem 1.25rem; cursor: pointer; border: none; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-secondary { background: var(--border-color); color: var(--text-color); }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
+        /* Stats Bar */
+        .stats-bar { font-size: 0.9rem; margin-bottom: 1rem; color: #64748b; font-weight: 500; }
 
-        button#theme-toggle {
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-        }
+        /* Table Styling */
+        .table-container { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px -5px rgba(0,0,0,0.1); overflow: auto; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: rgba(0,0,0,0.02); padding: 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; cursor: pointer; white-space: nowrap; border-bottom: 2px solid var(--border-color); }
+        th:hover { color: var(--accent-color); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
 
-        .table-container {
-            background: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th, td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: rgba(0,0,0,0.05);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.05em;
-        }
-
-        tr:last-child td { border-bottom: none; }
-
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .error-msg {
-            color: #ef4444;
-            padding: 1rem;
-            text-align: center;
-        }
+        /* Status Badges */
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        
+        /* Health colors */
+        .health-red { background: #fee2e2; color: #991b1b; } .health-red .status-dot { background: var(--red); }
+        .health-orange { background: #ffedd5; color: #9a3412; } .health-orange .status-dot { background: var(--orange); }
+        .health-yellow { background: #fef9c3; color: #854d0e; } .health-yellow .status-dot { background: var(--yellow); }
+        .health-green { background: #dcfce7; color: #166534; } .health-green .status-dot { background: var(--green); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>System Details</h1>
-        <button id="theme-toggle">Toggle Dark Mode</button>
+        <h1>System Inventory</h1>
+        <button class="btn btn-secondary" id="theme-toggle">🌓 Mode</button>
     </div>
 
-    <div class="table-container" id="content">
-        <p style="padding: 20px;">Loading data...</p>
+    <div class="controls">
+        <input type="text" id="search-bar" placeholder="Filter by name, BU, tenant, group...">
+        <button class="btn btn-primary" onclick="exportToCSV()">📂 Download CSV</button>
+    </div>
+
+    <div class="stats-bar" id="stats">Showing 0 systems</div>
+
+    <div class="table-container">
+        <table id="inventory-table">
+            <thead><tr id="table-head"></tr></thead>
+            <tbody id="table-body"></tbody>
+        </table>
+        <div id="no-data" style="display:none; padding: 3rem; text-align: center; color: #64748b;">No matching results found.</div>
     </div>
 </div>
 
 <script>
-    // --- Theme Toggle Logic ---
-    const toggleBtn = document.getElementById('theme-toggle');
-    toggleBtn.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    });
+    let rawData = [];
+    let currentData = [];
 
-    // Load saved theme
-    if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    }
-
-    // --- Data Fetching & Query Logic ---
     async function init() {
         try {
             const response = await fetch('data.json');
-            const data = await response.json();
+            rawData = await response.json();
             
-            // Get URL Parameters
+            // Handle URL Queries
             const urlParams = new URLSearchParams(window.location.search);
+            const params = {};
+            for (const [k, v] of urlParams.entries()) params[k.toLowerCase()] = v.toLowerCase();
+
+            const keys = Object.keys(rawData[0] || {});
+            let hasFilter = false;
             
-            // Priority 1: Check if "Name" is in URL. Priority 2: Default to "Buffer"
-            const searchName = urlParams.get('Name') || 'Buffer';
+            currentData = rawData.filter(item => {
+                let match = true;
+                keys.forEach(key => {
+                    const lowKey = key.toLowerCase();
+                    if (params[lowKey] && String(item[key]).toLowerCase() !== params[lowKey]) match = false;
+                });
+                if (match && Object.keys(params).length > 0) hasFilter = true;
+                return match;
+            });
 
-            // Filter data
-            const result = data.find(item => item.Name.toLowerCase() === searchName.toLowerCase());
-
-            if (result) {
-                renderTable(result);
-            } else {
-                document.getElementById('content').innerHTML = `<div class="error-msg">No record found for: ${searchName}</div>`;
+            if (!hasFilter) {
+                currentData = rawData.filter(item => item.Name === 'Buffer');
             }
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            document.getElementById('content').innerHTML = `<div class="error-msg">Error loading data.json. Ensure the file exists.</div>`;
+
+            renderTable(currentData);
+        } catch (e) {
+            document.getElementById('table-body').innerHTML = `<tr><td colspan="10">Error loading data.json</td></tr>`;
         }
     }
 
-    function renderTable(item) {
-        let html = `<table>
-                        <thead>
-                            <tr>
-                                <th>Field</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
+    function getHealthClass(value) {
+        if (!value || !value.includes('/')) return '';
+        const [pass, total] = value.split('/').map(Number);
+        const pct = (pass / total) * 100;
         
-        for (const [key, value] of Object.entries(item)) {
-            html += `<tr>
-                        <td><strong>${key}</strong></td>
-                        <td>${value}</td>
-                    </tr>`;
-        }
-
-        html += `</tbody></table>`;
-        document.getElementById('content').innerHTML = html;
+        if (pct === 100) return 'health-green';
+        if (pct >= 80) return 'health-yellow';
+        if (pct >= 50) return 'health-orange';
+        return 'health-red';
     }
+
+    function renderTable(data) {
+        const head = document.getElementById('table-head');
+        const body = document.getElementById('table-body');
+        const stats = document.getElementById('stats');
+        
+        if (data.length === 0) {
+            body.innerHTML = ""; 
+            document.getElementById('no-data').style.display = "block";
+            stats.innerText = "Showing 0 systems";
+            return;
+        }
+        document.getElementById('no-data').style.display = "none";
+
+        const cols = Object.keys(data[0]);
+        head.innerHTML = cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('');
+
+        body.innerHTML = data.map(row => {
+            return `<tr>${cols.map(c => {
+                let val = row[c] || '';
+                if (c === 'ChecksPassed') {
+                    const hClass = getHealthClass(val);
+                    return `<td><span class="badge ${hClass}"><span class="status-dot"></span>${val}</span></td>`;
+                }
+                return `<td>${val}</td>`;
+            }).join('')}</tr>`;
+        }).join('');
+
+        stats.innerText = `Showing ${data.length} system(s)`;
+    }
+
+    // --- Dynamic Search ---
+    document.getElementById('search-bar').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = rawData.filter(item => 
+            Object.values(item).some(val => String(val).toLowerCase().includes(term))
+        );
+        renderTable(filtered);
+    });
+
+    // --- Simple Sorting ---
+    let sortDir = 1;
+    function sortTable(col) {
+        sortDir *= -1;
+        currentData.sort((a, b) => (a[col] > b[col] ? 1 : -1) * sortDir);
+        renderTable(currentData);
+    }
+
+    function exportToCSV() {
+        const cols = Object.keys(rawData[0]);
+        const csv = [cols.join(','), ...rawData.map(r => cols.map(c => `"${r[c]}"`).join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'inventory_report.csv'; a.click();
+    }
+
+    // --- Theme Logic ---
+    const toggleBtn = document.getElementById('theme-toggle');
+    toggleBtn.addEventListener('click', () => {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    });
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
     init();
 </script>
-
 </body>
 </html>
