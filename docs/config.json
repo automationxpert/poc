@@ -1,0 +1,13 @@
+{
+  "dashboardTitle": "AutomationExpert Inventory Master",
+  "footer": {
+    "title": "Global Infrastructure Services",
+    "description": "Enterprise-grade asset tracking and health monitoring. Data is refreshed automatically via secure PowerShell collection pipelines.",
+    "orgName": "Automation Expert Ltd",
+    "resources": [
+      {"label": "Internal Wiki", "url": "https://wiki.yourcompany.com"},
+      {"label": "On-Call Schedule", "url": "https://pagerduty.com"},
+      {"label": "Support Portal", "url": "https://jira.yourcompany.com"}
+    ]
+  }
+}
