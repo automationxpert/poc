@@ -32,13 +32,12 @@
         .stat-card { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
         .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-color); }
         .stat-card h3 { margin: 0; font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
-        .stat-card .value { font-size: 1.6rem; font-weight: 800; margin-top: 0.5rem; }
+        .stat-card .value { font-size: 1.4rem; font-weight: 800; margin-top: 0.5rem; }
 
         /* Action Bar */
         .action-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 1.5rem; background: var(--card-bg); padding: 0.75rem; border-radius: 12px; border: 1px solid var(--border-color); position: sticky; top: 80px; z-index: 900; }
         .search-wrapper { flex-grow: 1; }
         input[type="text"] { width: 100%; padding: 0.7rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); box-sizing: border-box; outline: none; }
-        input[type="text"]:focus { border-color: var(--accent-color); }
 
         /* Table UI */
         .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
@@ -47,22 +46,25 @@
         td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
         tr:hover { background: var(--hover-bg); }
 
+        /* Pagination Styling */
+        .pagination-container { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+        .page-info { font-size: 0.8rem; font-weight: 600; color: #64748b; }
+
         /* Footer UI */
         footer { background: var(--card-bg); border-top: 1px solid var(--border-color); padding: 2.5rem 2rem; margin-top: 3rem; color: #64748b; }
         .footer-content { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
         .footer-section h4 { color: var(--text-color); margin-bottom: 1rem; font-size: 0.9rem; text-transform: uppercase; }
-        .footer-bottom { max-width: 1600px; margin: 2rem auto 0; padding-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; flex-wrap: wrap; gap: 10px; }
+        .footer-bottom { max-width: 1600px; margin: 2rem auto 0; padding-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; }
         .status-dot { height: 10px; width: 10px; background-color: var(--green); border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 8px var(--green); }
 
-        /* Badges & Buttons */
+        /* Utilities */
         .badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; }
         .health-red { background: #fee2e2; color: #991b1b; }
         .health-green { background: #dcfce7; color: #166534; }
         .health-yellow { background: #fef9c3; color: #854d0e; }
-        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
-        .btn:hover { background: var(--hover-bg); border-color: var(--accent-color); }
+        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* Mobile View (Card Mode) */
         @media (max-width: 850px) {
             .summary-ribbon { grid-template-columns: 1fr 1fr; }
             .action-bar { flex-direction: column; align-items: stretch; }
@@ -77,8 +79,8 @@
 
 <div class="header">
     <div style="display:flex; align-items:center; gap:12px;">
-        <h2 style="margin:0; font-size: 1.3rem;">CloudOps Inventory</h2>
-        <span id="update-time" style="font-size: 0.75rem; font-weight: 600; opacity: 0.7;">Initializing...</span>
+        <h2 style="margin:0; font-size: 1.3rem;">Inventory Master</h2>
+        <span id="update-time" style="font-size: 0.75rem; font-weight: 600; opacity: 0.7;">Syncing...</span>
     </div>
     <div style="display:flex; gap:12px; align-items:center;">
         <select id="theme-select" class="btn" onchange="setTheme(this.value)">
@@ -101,12 +103,18 @@
             <div class="value" id="stat-critical" style="color:var(--red)">0</div>
         </div>
         <div class="stat-card">
-            <h3>Next Sync</h3>
-            <div class="value" id="sync-timer" style="color:var(--accent-color)">120s</div>
+            <h3>Rows Per Page</h3>
+            <select id="page-size" onchange="changePageSize(this.value)" style="border:none; background:transparent; font-weight:800; color:var(--accent-color); font-size: 1.1rem; cursor:pointer; width:100%; outline:none;">
+                <option value="10">10 Rows</option>
+                <option value="25" selected>25 Rows</option>
+                <option value="50">50 Rows</option>
+                <option value="100">100 Rows</option>
+                <option value="1000">Show All</option>
+            </select>
         </div>
         <div class="stat-card">
             <h3>Group View</h3>
-            <select id="group-select" onchange="applyCurrentView()" style="border:none; background:transparent; font-weight:800; color:var(--accent-color); font-size: 1.3rem; cursor:pointer; width:100%; outline:none;">
+            <select id="group-select" onchange="currentPage=1; applyCurrentView()" style="border:none; background:transparent; font-weight:800; color:var(--accent-color); font-size: 1.1rem; cursor:pointer; width:100%; outline:none;">
                 <option value="none">Ungrouped</option>
                 <option value="Environment">By Env</option>
                 <option value="BU">By BU</option>
@@ -116,9 +124,10 @@
 
     <div class="action-bar">
         <div class="search-wrapper">
-            <input type="text" id="search-bar" placeholder="Universal search (Host, IP, BU, Owner)..." oninput="applyCurrentView()">
+            <input type="text" id="search-bar" placeholder="Search hosts, IPs, owners..." oninput="currentPage=1; applyCurrentView()">
         </div>
-        <button class="btn" onclick="init()">🔄 Sync Now</button>
+        <div class="pagination-container" id="pagination-controls"></div>
+        <button class="btn" onclick="init()">🔄 Sync</button>
     </div>
 
     <div class="table-container">
@@ -132,61 +141,55 @@
 <footer>
     <div class="footer-content">
         <div class="footer-section">
-            <h4>Inventory Master</h4>
-            <p style="font-size: 0.8rem; line-height: 1.5;">Enterprise asset tracking dashboard. Data is gathered via automated PowerShell collection scripts and deployed via GitHub Actions.</p>
+            <h4>CloudOps Inventory</h4>
+            <p style="font-size: 0.8rem; line-height: 1.5;">Static dashboard visualizing automated infrastructure collection. Powered by PowerShell & GitHub Actions.</p>
         </div>
         <div class="footer-section">
-            <h4>Platform Status</h4>
-            <p style="font-size: 0.8rem;"><span class="status-dot"></span> All Systems Operational</p>
-            <p style="font-size: 0.8rem;" id="footer-sync-text">Auto-refresh active (120s interval)</p>
+            <h4>System Status</h4>
+            <p style="font-size: 0.8rem;"><span class="status-dot"></span> Background Sync Active</p>
+            <p style="font-size: 0.8rem;">Updates every 2 minutes</p>
         </div>
         <div class="footer-section">
             <h4>Resources</h4>
-            <a href="#" style="font-size: 0.8rem; color:inherit; text-decoration:none; display:block; margin-bottom:5px;">📋 API Docs</a>
-            <a href="#" style="font-size: 0.8rem; color:inherit; text-decoration:none; display:block;">🛠️ Support Desk</a>
+            <a href="#">Wiki Documentation</a>
+            <a href="#">Security Policy</a>
         </div>
     </div>
     <div class="footer-bottom">
-        <div>&copy; 2026 Your Organization. Managed by CloudOps Team.</div>
-        <div id="footer-refresh-label" style="opacity: 0.8;">Data synchronizing...</div>
+        <div>&copy; 2026 Your Organization.</div>
+        <div id="footer-data-info">Data updated via automated push.</div>
     </div>
 </footer>
 
 <script>
     let rawSystems = [];
     let currentData = [];
-    let countdown = 120;
-    let lastDataString = "";
+    let lastDataStr = "";
+    let currentPage = 1;
+    let pageSize = 25;
 
     async function init() {
         try {
             const response = await fetch('data.json?t=' + Date.now());
             const text = await response.text();
-            
-            // Only re-render if data is different
-            if (text === lastDataString) return;
-            lastDataString = text;
-            
+            if (text === lastDataStr) return;
+            lastDataStr = text;
             const data = JSON.parse(text);
             rawSystems = data.Systems;
-            
             updateHeader(data.LastUpdated);
             updateSummary();
             applyCurrentView();
-            countdown = 120; // Reset timer on successful fetch
-        } catch (e) { 
-            console.error("Fetch failed", e);
-            document.getElementById('update-time').innerText = "Sync Failed";
-        }
+        } catch (e) { document.getElementById('update-time').innerText = "Sync Failed"; }
     }
+
+    // Background Sync every 120s
+    setInterval(init, 120000);
 
     function updateHeader(timestamp) {
         const lastUpdate = new Date(timestamp);
         const timeEl = document.getElementById('update-time');
-        const diff = (new Date() - lastUpdate) / 3600000;
-        
         timeEl.innerText = `Last Scan: ${lastUpdate.toLocaleTimeString()}`;
-        if (diff > 24) {
+        if ((new Date() - lastUpdate) > 86400000) {
             timeEl.style.color = 'var(--red)';
             timeEl.style.animation = 'pulse 2s infinite';
         } else {
@@ -208,10 +211,10 @@
         currentData = rawSystems.filter(s => 
             Object.values(s).some(v => String(v).toLowerCase().includes(term))
         );
-        renderTable(currentData);
+        renderTable();
     }
 
-    function renderTable(data) {
+    function renderTable() {
         const body = document.getElementById('table-body');
         const head = document.getElementById('table-head');
         const groupKey = document.getElementById('group-select').value;
@@ -219,17 +222,40 @@
 
         head.innerHTML = `<tr>${cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('')}</tr>`;
         
+        // Pagination Logic (Only if not grouping)
+        let displayData = currentData;
+        if (groupKey === 'none') {
+            const start = (currentPage - 1) * pageSize;
+            displayData = currentData.slice(start, start + parseInt(pageSize));
+        }
+
         let html = '';
         if (groupKey === 'none') {
-            html = data.map(row => generateRow(row, cols)).join('');
+            html = displayData.map(row => generateRow(row, cols)).join('');
         } else {
-            const grouped = data.reduce((r, a) => { r[a[groupKey]] = [...r[a[groupKey]] || [], a]; return r; }, {});
+            const grouped = displayData.reduce((r, a) => { r[a[groupKey]] = [...r[a[groupKey]] || [], a]; return r; }, {});
             for (const [key, rows] of Object.entries(grouped)) {
                 html += `<tr style="background:rgba(100,100,100,0.1); font-weight:bold;"><td colspan="${cols.length}">${key} (${rows.length})</td></tr>`;
                 html += rows.map(row => generateRow(row, cols)).join('');
             }
         }
-        body.innerHTML = html || '<tr><td colspan="100%" style="text-align:center; padding:3rem;">No records match your criteria.</td></tr>';
+        body.innerHTML = html || '<tr><td colspan="100%" style="text-align:center; padding:3rem;">No records found.</td></tr>';
+        renderPagination();
+    }
+
+    function renderPagination() {
+        const container = document.getElementById('pagination-controls');
+        const groupKey = document.getElementById('group-select').value;
+        if (groupKey !== 'none' || currentData.length <= pageSize) {
+            container.innerHTML = ''; return;
+        }
+
+        const totalPages = Math.ceil(currentData.length / pageSize);
+        container.innerHTML = `
+            <button class="btn" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>Prev</button>
+            <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+            <button class="btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next</button>
+        `;
     }
 
     function generateRow(row, cols) {
@@ -244,22 +270,17 @@
                 const n = parseInt(val);
                 return `<td data-label="${c}">${val}<div style="width:60px; height:4px; background:#eee; border-radius:2px; margin-top:4px;"><div style="width:${Math.min(n,100)}%; height:100%; background:${n<10?'var(--red)':'var(--green)'}; border-radius:2px;"></div></div></td>`;
             }
-            if (c === 'Name') return `<td data-label="${c}"><strong>${val}</strong><button style="border:none; background:none; cursor:pointer; opacity:0.4;" onclick="navigator.clipboard.writeText('${val}')">📋</button></td>`;
+            if (c === 'Name') return `<td data-label="${c}"><strong>${val}</strong><button style="border:none; background:none; cursor:pointer; opacity:0.3; margin-left:5px;" onclick="navigator.clipboard.writeText('${val}')">📋</button></td>`;
             return `<td data-label="${c}">${val}</td>`;
         }).join('')}</tr>`;
     }
 
-    // Timer & Automations
-    setInterval(() => {
-        countdown--;
-        if (countdown <= 0) init();
-        document.getElementById('sync-timer').innerText = countdown + "s";
-        document.getElementById('footer-refresh-label').innerText = `Next data synchronization in ${countdown} seconds`;
-    }, 1000);
+    function changePage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
+    function changePageSize(s) { pageSize = s; currentPage = 1; renderTable(); }
 
     function sortTable(c) {
         currentData.sort((a,b) => a[c] > b[c] ? 1 : -1);
-        renderTable(currentData);
+        renderTable();
     }
 
     function setTheme(val) {
@@ -270,6 +291,7 @@
     function resetFilters() { 
         document.getElementById('search-bar').value = ''; 
         document.getElementById('group-select').value = 'none';
+        currentPage = 1;
         applyCurrentView(); 
     }
 
@@ -278,7 +300,8 @@
             const [p, t] = s.ChecksPassed.split('/').map(Number);
             return (p/t) < 0.5;
         });
-        renderTable(currentData);
+        currentPage = 1;
+        renderTable();
     }
 
     function exportToCSV() {
@@ -287,7 +310,7 @@
         const blob = new Blob([csv], { type: 'text/csv' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `inventory_export_${new Date().getTime()}.csv`;
+        a.download = `inventory_export_${Date.now()}.csv`;
         a.click();
     }
 
