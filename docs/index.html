@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise System Dashboard</title>
+    <title id="tab-title">Loading...</title>
     <style>
         :root {
             --bg-color: #f1f5f9; --card-bg: #ffffff; --text-color: #0f172a;
@@ -21,303 +21,221 @@
             }
         }
 
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; display: flex; flex-direction: column; min-height: 100vh; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
         .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
         .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; flex: 1; width: 100%; box-sizing: border-box; }
 
-        /* Summary Ribbon */
-        .summary-ribbon { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-card { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
-        .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-color); }
-        .stat-card h3 { margin: 0; font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
-        .stat-card .value { font-size: 1.4rem; font-weight: 800; margin-top: 0.5rem; }
-
+        /* Filter Panel */
+        .filter-panel { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
+        
         /* Action Bar */
         .action-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 1.5rem; background: var(--card-bg); padding: 0.75rem; border-radius: 12px; border: 1px solid var(--border-color); position: sticky; top: 80px; z-index: 900; }
-        .search-wrapper { flex-grow: 1; }
-        input[type="text"] { width: 100%; padding: 0.7rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); box-sizing: border-box; outline: none; }
+        input[type="text"], select { padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); outline: none; font-family: inherit; }
 
-        /* Table UI */
-        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        /* Table */
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { padding: 1rem; font-size: 0.75rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; white-space: nowrap; }
+        th { padding: 1rem; font-size: 0.75rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; }
         td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
-        tr:hover { background: var(--hover-bg); }
 
-        /* Pagination Styling */
-        .pagination-container { display: flex; align-items: center; gap: 10px; margin-left: auto; }
-        .page-info { font-size: 0.8rem; font-weight: 600; color: #64748b; }
-
-        /* Footer UI */
+        /* Footer */
         footer { background: var(--card-bg); border-top: 1px solid var(--border-color); padding: 2.5rem 2rem; margin-top: 3rem; color: #64748b; }
         .footer-content { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
-        .footer-section h4 { color: var(--text-color); margin-bottom: 1rem; font-size: 0.9rem; text-transform: uppercase; }
-        .footer-bottom { max-width: 1600px; margin: 2rem auto 0; padding-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; }
-        .status-dot { height: 10px; width: 10px; background-color: var(--green); border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 8px var(--green); }
 
-        /* Utilities */
+        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 0.8rem; font-weight: 600; }
         .badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; }
-        .health-red { background: #fee2e2; color: #991b1b; }
-        .health-green { background: #dcfce7; color: #166534; }
-        .health-yellow { background: #fef9c3; color: #854d0e; }
-        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .health-green { background: #dcfce7; color: #166534; } .health-red { background: #fee2e2; color: #991b1b; }
 
-        @media (max-width: 850px) {
-            .summary-ribbon { grid-template-columns: 1fr 1fr; }
-            .action-bar { flex-direction: column; align-items: stretch; }
-            thead { display: none; }
-            tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 12px; padding: 0.5rem; background: var(--card-bg); }
-            td { display: flex; justify-content: space-between; border: none; padding: 0.6rem 1rem; text-align: right; }
-            td::before { content: attr(data-label); font-weight: bold; text-align: left; color: #64748b; margin-right: 1rem; font-size: 0.75rem; text-transform: uppercase; }
-        }
+        /* API Mode styling */
+        pre { background: #1e293b; color: #f1f5f9; padding: 2rem; border-radius: 12px; overflow: auto; margin: 2rem; line-height: 1.5; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div style="display:flex; align-items:center; gap:12px;">
-        <h2 style="margin:0; font-size: 1.3rem;">Inventory Master</h2>
-        <span id="update-time" style="font-size: 0.75rem; font-weight: 600; opacity: 0.7;">Syncing...</span>
+<div id="dashboard-ui">
+    <div class="header">
+        <div>
+            <h2 id="display-title" style="margin:0; font-size: 1.3rem;">...</h2>
+            <span id="update-time" style="font-size: 0.75rem; opacity: 0.7;">Syncing...</span>
+        </div>
+        <div style="display:flex; gap:12px;">
+            <select id="theme-select" class="btn" onchange="setTheme(this.value)">
+                <option value="system">🌓 System</option>
+                <option value="light">☀️ Light</option>
+                <option value="dark">🌙 Dark</option>
+            </select>
+            <button class="btn" onclick="exportToCSV()">📂 Export CSV</button>
+        </div>
     </div>
-    <div style="display:flex; gap:12px; align-items:center;">
-        <select id="theme-select" class="btn" onchange="setTheme(this.value)">
-            <option value="system">🌓 System Theme</option>
-            <option value="light">☀️ Light</option>
-            <option value="dark">🌙 Dark</option>
-        </select>
-        <button class="btn" onclick="exportToCSV()">📂 Export CSV</button>
-    </div>
-</div>
 
-<div class="container">
-    <div class="summary-ribbon">
-        <div class="stat-card" onclick="resetFilters()">
-            <h3>Total Systems</h3>
-            <div class="value" id="stat-total">0</div>
+    <div class="container">
+        <div class="filter-panel">
+            <div class="filter-group">
+                <label>Filter Column</label>
+                <select id="filter-col" onchange="applyCurrentView()"><option value="all">Search All Fields</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Match Mode</label>
+                <select id="match-mode" onchange="applyCurrentView()">
+                    <option value="like">Matches (Like)</option>
+                    <option value="exact">Exact Equal</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex-direction: row; align-items: center; padding-top: 15px;">
+                <input type="checkbox" id="case-sensitive" onchange="applyCurrentView()">
+                <label for="case-sensitive" style="margin-left:5px; cursor:pointer;">Case Sensitive</label>
+            </div>
+            <div style="flex-grow: 1;"></div>
+            <div class="filter-group">
+                <label>Total Systems</label>
+                <div class="badge health-green" id="stat-total" style="font-size: 1rem; padding: 8px 15px;">0</div>
+            </div>
         </div>
-        <div class="stat-card" onclick="filterByHealth()">
-            <h3>Critical Health</h3>
-            <div class="value" id="stat-critical" style="color:var(--red)">0</div>
-        </div>
-        <div class="stat-card">
-            <h3>Rows Per Page</h3>
-            <select id="page-size" onchange="changePageSize(this.value)" style="border:none; background:transparent; font-weight:800; color:var(--accent-color); font-size: 1.1rem; cursor:pointer; width:100%; outline:none;">
-                <option value="10">10 Rows</option>
-                <option value="25" selected>25 Rows</option>
-                <option value="50">50 Rows</option>
-                <option value="100">100 Rows</option>
-                <option value="1000">Show All</option>
+
+        <div class="action-bar">
+            <input type="text" id="search-bar" placeholder="Enter filter value..." oninput="currentPage=1; applyCurrentView()">
+            <div id="pagination-controls" style="display:flex; align-items:center; gap:10px;"></div>
+            <select id="page-size" onchange="changePageSize(this.value)" class="btn">
+                <option value="25">25 Rows</option><option value="50">50 Rows</option><option value="1000">All</option>
             </select>
         </div>
-        <div class="stat-card">
-            <h3>Group View</h3>
-            <select id="group-select" onchange="currentPage=1; applyCurrentView()" style="border:none; background:transparent; font-weight:800; color:var(--accent-color); font-size: 1.1rem; cursor:pointer; width:100%; outline:none;">
-                <option value="none">Ungrouped</option>
-                <option value="Environment">By Env</option>
-                <option value="BU">By BU</option>
-            </select>
+
+        <div class="table-container">
+            <table><thead id="table-head"></thead><tbody id="table-body"></tbody></table>
         </div>
     </div>
 
-    <div class="action-bar">
-        <div class="search-wrapper">
-            <input type="text" id="search-bar" placeholder="Search hosts, IPs, owners..." oninput="currentPage=1; applyCurrentView()">
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section"><h4 id="footer-title">...</h4><p id="footer-desc" style="font-size: 0.8rem;"></p></div>
+            <div class="footer-section"><h4>Resources</h4><div id="footer-links"></div></div>
         </div>
-        <div class="pagination-container" id="pagination-controls"></div>
-        <button class="btn" onclick="init()">🔄 Sync</button>
-    </div>
-
-    <div class="table-container">
-        <table>
-            <thead id="table-head"></thead>
-            <tbody id="table-body"></tbody>
-        </table>
-    </div>
+        <div class="footer-bottom"><div id="footer-org"></div></div>
+    </footer>
 </div>
 
-<footer>
-    <div class="footer-content">
-        <div class="footer-section">
-            <h4>CloudOps Inventory</h4>
-            <p style="font-size: 0.8rem; line-height: 1.5;">Static dashboard visualizing automated infrastructure collection. Powered by PowerShell & GitHub Actions.</p>
-        </div>
-        <div class="footer-section">
-            <h4>System Status</h4>
-            <p style="font-size: 0.8rem;"><span class="status-dot"></span> Background Sync Active</p>
-            <p style="font-size: 0.8rem;">Updates every 2 minutes</p>
-        </div>
-        <div class="footer-section">
-            <h4>Resources</h4>
-            <a href="#">Wiki Documentation</a>
-            <a href="#">Security Policy</a>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <div>&copy; 2026 Your Organization.</div>
-        <div id="footer-data-info">Data updated via automated push.</div>
-    </div>
-</footer>
+<div id="api-output" style="display:none;"></div>
 
 <script>
     let rawSystems = [];
     let currentData = [];
-    let lastDataStr = "";
     let currentPage = 1;
     let pageSize = 25;
 
-    async function init() {
-        try {
-            const response = await fetch('data.json?t=' + Date.now());
-            const text = await response.text();
-            if (text === lastDataStr) return;
-            lastDataStr = text;
-            const data = JSON.parse(text);
-            rawSystems = data.Systems;
-            updateHeader(data.LastUpdated);
-            updateSummary();
-            applyCurrentView();
-        } catch (e) { document.getElementById('update-time').innerText = "Sync Failed"; }
+    async function loadConfig() {
+        const res = await fetch('config.json?t=' + Date.now());
+        const conf = await res.json();
+        document.title = conf.dashboardTitle;
+        document.getElementById('display-title').innerText = conf.dashboardTitle;
+        document.getElementById('footer-title').innerText = conf.footer.title;
+        document.getElementById('footer-desc').innerText = conf.footer.description;
+        document.getElementById('footer-org').innerText = `© 2026 ${conf.footer.orgName}`;
+        document.getElementById('footer-links').innerHTML = conf.footer.resources.map(l => `<a href="${l.url}" target="_blank" style="font-size:0.8rem; color:inherit; display:block; margin-bottom:5px;">🔗 ${l.label}</a>`).join('');
     }
 
-    // Background Sync every 120s
-    setInterval(init, 120000);
+    async function init() {
+        const response = await fetch('data.json?t=' + Date.now());
+        const data = await response.json();
+        rawSystems = data.Systems;
+        
+        // Populate Filter Column Dropdown once
+        if (document.getElementById('filter-col').options.length === 1) {
+            Object.keys(rawSystems[0]).forEach(key => {
+                let opt = document.createElement('option'); opt.value = key; opt.innerText = key;
+                document.getElementById('filter-col').appendChild(opt);
+            });
+        }
+        
+        updateHeader(data.LastUpdated);
+        handleApiMode(); // Check if we need to output raw text for IRM
+        applyCurrentView();
+    }
 
-    function updateHeader(timestamp) {
-        const lastUpdate = new Date(timestamp);
-        const timeEl = document.getElementById('update-time');
-        timeEl.innerText = `Last Scan: ${lastUpdate.toLocaleTimeString()}`;
-        if ((new Date() - lastUpdate) > 86400000) {
-            timeEl.style.color = 'var(--red)';
-            timeEl.style.animation = 'pulse 2s infinite';
-        } else {
-            timeEl.style.color = 'inherit';
-            timeEl.style.animation = 'none';
+    function handleApiMode() {
+        const params = new URLSearchParams(window.location.search);
+        const nameFilter = params.get('name');
+        const format = params.get('format');
+
+        if (nameFilter && format === 'json') {
+            const match = rawSystems.find(s => s.Name.toLowerCase() === nameFilter.toLowerCase());
+            document.getElementById('dashboard-ui').style.display = 'none';
+            document.getElementById('api-output').style.display = 'block';
+            document.getElementById('api-output').innerHTML = `<pre>${JSON.stringify(match || {error: "Not Found"}, null, 2)}</pre>`;
         }
     }
 
-    function updateSummary() {
-        document.getElementById('stat-total').innerText = rawSystems.length;
-        document.getElementById('stat-critical').innerText = rawSystems.filter(s => {
-            const [p, t] = s.ChecksPassed.split('/').map(Number);
-            return (p/t) < 0.5;
-        }).length;
-    }
-
     function applyCurrentView() {
-        const term = document.getElementById('search-bar').value.toLowerCase();
-        currentData = rawSystems.filter(s => 
-            Object.values(s).some(v => String(v).toLowerCase().includes(term))
-        );
+        const term = document.getElementById('search-bar').value;
+        const col = document.getElementById('filter-col').value;
+        const isExact = document.getElementById('match-mode').value === 'exact';
+        const isCase = document.getElementById('case-sensitive').checked;
+
+        currentData = rawSystems.filter(s => {
+            const fieldsToSearch = col === 'all' ? Object.values(s) : [s[col]];
+            return fieldsToSearch.some(val => {
+                let v = String(val);
+                let t = String(term);
+                
+                if (!isCase) { v = v.toLowerCase(); t = t.toLowerCase(); }
+                if (t === "") return true;
+                return isExact ? v === t : v.includes(t);
+            });
+        });
+
+        document.getElementById('stat-total').innerText = currentData.length;
         renderTable();
     }
 
     function renderTable() {
         const body = document.getElementById('table-body');
         const head = document.getElementById('table-head');
-        const groupKey = document.getElementById('group-select').value;
         const cols = Object.keys(rawSystems[0]);
-
         head.innerHTML = `<tr>${cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('')}</tr>`;
         
-        // Pagination Logic (Only if not grouping)
-        let displayData = currentData;
-        if (groupKey === 'none') {
-            const start = (currentPage - 1) * pageSize;
-            displayData = currentData.slice(start, start + parseInt(pageSize));
-        }
-
-        let html = '';
-        if (groupKey === 'none') {
-            html = displayData.map(row => generateRow(row, cols)).join('');
-        } else {
-            const grouped = displayData.reduce((r, a) => { r[a[groupKey]] = [...r[a[groupKey]] || [], a]; return r; }, {});
-            for (const [key, rows] of Object.entries(grouped)) {
-                html += `<tr style="background:rgba(100,100,100,0.1); font-weight:bold;"><td colspan="${cols.length}">${key} (${rows.length})</td></tr>`;
-                html += rows.map(row => generateRow(row, cols)).join('');
+        const start = (currentPage - 1) * pageSize;
+        const displayData = currentData.slice(start, start + parseInt(pageSize));
+        
+        body.innerHTML = displayData.map(row => `<tr>${cols.map(c => {
+            let val = row[c] || '';
+            if (c === 'ChecksPassed') {
+                const [p, t] = val.split('/').map(Number);
+                return `<td data-label="${c}"><span class="badge ${(p/t)===1?'health-green':'health-red'}">${val}</span></td>`;
             }
-        }
-        body.innerHTML = html || '<tr><td colspan="100%" style="text-align:center; padding:3rem;">No records found.</td></tr>';
+            return `<td data-label="${c}">${val}</td>`;
+        }).join('')}</tr>`).join('') || '<tr><td colspan="100%" style="text-align:center;">No matches</td></tr>';
+        
         renderPagination();
     }
 
     function renderPagination() {
         const container = document.getElementById('pagination-controls');
-        const groupKey = document.getElementById('group-select').value;
-        if (groupKey !== 'none' || currentData.length <= pageSize) {
-            container.innerHTML = ''; return;
-        }
-
         const totalPages = Math.ceil(currentData.length / pageSize);
+        if (totalPages <= 1) { container.innerHTML = ''; return; }
         container.innerHTML = `
             <button class="btn" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>Prev</button>
-            <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+            <span style="font-size:0.8rem; font-weight:600;">${currentPage} / ${totalPages}</span>
             <button class="btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next</button>
         `;
     }
 
-    function generateRow(row, cols) {
-        return `<tr>${cols.map(c => {
-            let val = row[c] || '';
-            if (c === 'ChecksPassed') {
-                const [p, t] = val.split('/').map(Number);
-                const style = (p/t) === 1 ? 'health-green' : (p/t) >= 0.8 ? 'health-yellow' : 'health-red';
-                return `<td data-label="${c}"><span class="badge ${style}">${val}</span></td>`;
-            }
-            if (c === 'FreeDiskSpace') {
-                const n = parseInt(val);
-                return `<td data-label="${c}">${val}<div style="width:60px; height:4px; background:#eee; border-radius:2px; margin-top:4px;"><div style="width:${Math.min(n,100)}%; height:100%; background:${n<10?'var(--red)':'var(--green)'}; border-radius:2px;"></div></div></td>`;
-            }
-            if (c === 'Name') return `<td data-label="${c}"><strong>${val}</strong><button style="border:none; background:none; cursor:pointer; opacity:0.3; margin-left:5px;" onclick="navigator.clipboard.writeText('${val}')">📋</button></td>`;
-            return `<td data-label="${c}">${val}</td>`;
-        }).join('')}</tr>`;
-    }
-
     function changePage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
     function changePageSize(s) { pageSize = s; currentPage = 1; renderTable(); }
-
-    function sortTable(c) {
-        currentData.sort((a,b) => a[c] > b[c] ? 1 : -1);
-        renderTable();
-    }
-
-    function setTheme(val) {
-        document.documentElement.setAttribute('data-theme', val);
-        localStorage.setItem('pref-theme', val);
-    }
-
-    function resetFilters() { 
-        document.getElementById('search-bar').value = ''; 
-        document.getElementById('group-select').value = 'none';
-        currentPage = 1;
-        applyCurrentView(); 
-    }
-
-    function filterByHealth() {
-        currentData = rawSystems.filter(s => {
-            const [p, t] = s.ChecksPassed.split('/').map(Number);
-            return (p/t) < 0.5;
-        });
-        currentPage = 1;
-        renderTable();
-    }
-
+    function sortTable(c) { currentData.sort((a,b) => a[c] > b[c] ? 1 : -1); renderTable(); }
+    function updateHeader(ts) { document.getElementById('update-time').innerText = `Scan: ${new Date(ts).toLocaleTimeString()}`; }
+    function setTheme(v) { document.documentElement.setAttribute('data-theme',v); localStorage.setItem('pref-theme',v); }
+    
     function exportToCSV() {
         const cols = Object.keys(rawSystems[0]);
-        const csv = [cols.join(','), ...rawSystems.map(r => cols.map(c => `"${r[c]}"`).join(','))].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `inventory_export_${Date.now()}.csv`;
-        a.click();
+        const csv = [cols.join(','), ...currentData.map(r => cols.map(c => `"${r[c]}"`).join(','))].join('\n');
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download=`export.csv`; a.click();
     }
 
     const savedTheme = localStorage.getItem('pref-theme') || 'system';
     setTheme(savedTheme);
     document.getElementById('theme-select').value = savedTheme;
-
+    loadConfig();
     init();
 </script>
 </body>
