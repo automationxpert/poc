@@ -3,62 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="tab-title">Loading...</title>
+    <title id="tab-title">System Dashboard</title>
     <style>
         :root {
             --bg-color: #f1f5f9; --card-bg: #ffffff; --text-color: #0f172a;
             --accent-color: #2563eb; --border-color: #e2e8f0; --hover-bg: #f8fafc;
             --red: #ef4444; --orange: #f97316; --yellow: #eab308; --green: #22c55e;
+            --footer-bg: #0f172a;
         }
         [data-theme="dark"] {
             --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
             --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
+            --footer-bg: #010409;
         }
         @media (prefers-color-scheme: dark) {
             [data-theme="system"] {
                 --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
                 --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
+                --footer-bg: #010409;
             }
         }
 
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; flex: 1; width: 100%; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; transition: background 0.3s; }
+        
+        /* Header */
+        .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .header-brand h2 { margin: 0; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.025em; }
+        
+        .container { max-width: 1600px; margin: 0 auto; padding: 2rem; flex: 1; width: 100%; box-sizing: border-box; }
 
-        /* Filter Panel */
-        .filter-panel { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-        .filter-group { display: flex; flex-direction: column; gap: 5px; }
-        .filter-group label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
+        /* Advanced Filter Panel */
+        .filter-panel { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; flex-direction: column; gap: 8px; }
+        .filter-group label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
         
         /* Action Bar */
-        .action-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 1.5rem; background: var(--card-bg); padding: 0.75rem; border-radius: 12px; border: 1px solid var(--border-color); position: sticky; top: 80px; z-index: 900; }
-        input[type="text"], select { padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); outline: none; font-family: inherit; }
+        .action-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 1.5rem; background: var(--card-bg); padding: 0.75rem 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); position: sticky; top: 85px; z-index: 900; }
+        
+        input[type="text"], select { padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); outline: none; font-size: 0.9rem; transition: border 0.2s; }
+        input[type="text"]:focus { border-color: var(--accent-color); }
 
-        /* Table */
-        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; }
+        /* Table UI */
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { padding: 1rem; font-size: 0.75rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; }
-        td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
+        th { padding: 1rem; font-size: 0.75rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; color: #64748b; }
+        th:hover { color: var(--accent-color); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; line-height: 1.5; }
+        tr:last-child td { border: none; }
+        tr:hover td { background: var(--hover-bg); }
 
-        /* Footer */
-        footer { background: var(--card-bg); border-top: 1px solid var(--border-color); padding: 2.5rem 2rem; margin-top: 3rem; color: #64748b; }
-        .footer-content { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        /* Professional Footer */
+        footer { background: var(--footer-bg); color: #94a3b8; padding: 4rem 2rem 2rem 2rem; margin-top: 4rem; border-top: 4px solid var(--accent-color); }
+        .footer-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4rem; }
+        .footer-section h4 { color: #ffffff; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem; }
+        .footer-links-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+        .footer-links-grid a { color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .footer-links-grid a:hover { color: var(--accent-color); }
+        .footer-bottom { max-width: 1400px; margin: 4rem auto 0; padding-top: 2rem; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
 
-        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+        /* Badges & Buttons */
         .badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; }
-        .health-green { background: #dcfce7; color: #166534; } .health-red { background: #fee2e2; color: #991b1b; }
+        .health-green { background: #dcfce7; color: #166534; }
+        .health-red { background: #fee2e2; color: #991b1b; }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; }
+        .btn:hover { border-color: var(--accent-color); background: var(--hover-bg); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* API Mode styling */
-        pre { background: #1e293b; color: #f1f5f9; padding: 2rem; border-radius: 12px; overflow: auto; margin: 2rem; line-height: 1.5; }
+        @media (max-width: 900px) {
+            .footer-content { grid-template-columns: 1fr; gap: 2.5rem; }
+            thead { display: none; }
+            tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 12px; }
+            td { display: flex; justify-content: space-between; border: none; padding: 0.75rem 1rem; text-align: right; }
+            td::before { content: attr(data-label); font-weight: bold; text-align: left; color: #64748b; font-size: 0.7rem; text-transform: uppercase; }
+        }
     </style>
 </head>
 <body>
 
 <div id="dashboard-ui">
     <div class="header">
-        <div>
-            <h2 id="display-title" style="margin:0; font-size: 1.3rem;">...</h2>
-            <span id="update-time" style="font-size: 0.75rem; opacity: 0.7;">Syncing...</span>
+        <div class="header-brand">
+            <h2 id="display-title">...</h2>
+            <span id="update-time" style="font-size: 0.75rem; font-weight: 600; opacity: 0.5;">Syncing...</span>
         </div>
         <div style="display:flex; gap:12px;">
             <select id="theme-select" class="btn" onchange="setTheme(this.value)">
@@ -83,23 +110,26 @@
                     <option value="exact">Exact Equal</option>
                 </select>
             </div>
-            <div class="filter-group" style="flex-direction: row; align-items: center; padding-top: 15px;">
-                <input type="checkbox" id="case-sensitive" onchange="applyCurrentView()">
-                <label for="case-sensitive" style="margin-left:5px; cursor:pointer;">Case Sensitive</label>
+            <div class="filter-group" style="padding-bottom: 10px;">
+                <label style="display:flex; align-items:center; cursor:pointer;">
+                    <input type="checkbox" id="case-sensitive" onchange="applyCurrentView()" style="margin-right:8px;">
+                    Case Sensitive
+                </label>
             </div>
             <div style="flex-grow: 1;"></div>
             <div class="filter-group">
-                <label>Total Systems</label>
-                <div class="badge health-green" id="stat-total" style="font-size: 1rem; padding: 8px 15px;">0</div>
+                <label>Filtered Results</label>
+                <div class="badge health-green" id="stat-total" style="font-size: 1rem; padding: 8px 16px;">0</div>
             </div>
         </div>
 
         <div class="action-bar">
-            <input type="text" id="search-bar" placeholder="Enter filter value..." oninput="currentPage=1; applyCurrentView()">
-            <div id="pagination-controls" style="display:flex; align-items:center; gap:10px;"></div>
+            <input type="text" id="search-bar" placeholder="Enter keyword to filter..." oninput="currentPage=1; applyCurrentView()" style="flex-grow: 1;">
+            <div id="pagination-controls" style="display:flex; align-items:center; gap:8px;"></div>
             <select id="page-size" onchange="changePageSize(this.value)" class="btn">
-                <option value="25">25 Rows</option><option value="50">50 Rows</option><option value="1000">All</option>
+                <option value="25">25 Rows</option><option value="50">50 Rows</option><option value="100">100 Rows</option><option value="1000">Show All</option>
             </select>
+            <button class="btn" onclick="init()">🔄</button>
         </div>
 
         <div class="table-container">
@@ -109,60 +139,88 @@
 
     <footer>
         <div class="footer-content">
-            <div class="footer-section"><h4 id="footer-title">...</h4><p id="footer-desc" style="font-size: 0.8rem;"></p></div>
-            <div class="footer-section"><h4>Resources</h4><div id="footer-links"></div></div>
+            <div class="footer-section">
+                <div id="footer-org-name" style="color:white; font-weight:800; font-size: 1.1rem;">...</div>
+                <p id="footer-desc" style="margin-top: 1rem; font-size: 0.85rem; color: #64748b;"></p>
+            </div>
+            <div class="footer-section">
+                <h4 id="footer-links-title">Resources</h4>
+                <div id="footer-links" class="footer-links-grid"></div>
+            </div>
+            <div class="footer-section">
+                <h4>System Architecture</h4>
+                <p style="font-size: 0.8rem; color: #475569;">
+                    Frontend: Vanilla JS / CSS3<br>
+                    Storage: GitHub Pages (Static)<br>
+                    Pipeline: PowerShell Automation
+                </p>
+            </div>
         </div>
-        <div class="footer-bottom"><div id="footer-org"></div></div>
+        <div class="footer-bottom">
+            <div id="footer-copyright"></div>
+            <div style="display:flex; gap:20px; opacity:0.6;">
+                <span>v12.0 Stable</span>
+                <span>Encrypted Push Active</span>
+            </div>
+        </div>
     </footer>
 </div>
 
-<div id="api-output" style="display:none;"></div>
+<div id="api-output" style="display:none; background:#0f172a; min-height:100vh; color:#38bdf8; padding:2rem; font-family:monospace;"></div>
 
 <script>
     let rawSystems = [];
     let currentData = [];
+    let lastDataStr = "";
     let currentPage = 1;
     let pageSize = 25;
 
     async function loadConfig() {
-        const res = await fetch('config.json?t=' + Date.now());
-        const conf = await res.json();
-        document.title = conf.dashboardTitle;
-        document.getElementById('display-title').innerText = conf.dashboardTitle;
-        document.getElementById('footer-title').innerText = conf.footer.title;
-        document.getElementById('footer-desc').innerText = conf.footer.description;
-        document.getElementById('footer-org').innerText = `© 2026 ${conf.footer.orgName}`;
-        document.getElementById('footer-links').innerHTML = conf.footer.resources.map(l => `<a href="${l.url}" target="_blank" style="font-size:0.8rem; color:inherit; display:block; margin-bottom:5px;">🔗 ${l.label}</a>`).join('');
+        try {
+            const res = await fetch('config.json?t=' + Date.now());
+            const conf = await res.json();
+            document.title = conf.dashboardTitle;
+            document.getElementById('display-title').innerText = conf.dashboardTitle;
+            document.getElementById('footer-org-name').innerText = conf.footer.orgName;
+            document.getElementById('footer-desc').innerText = conf.footer.description;
+            document.getElementById('footer-links-title').innerText = conf.footer.title;
+            document.getElementById('footer-copyright').innerText = `© 2026 ${conf.footer.orgName}. Internal Use Only.`;
+            document.getElementById('footer-links').innerHTML = conf.footer.resources.map(l => `<a href="${l.url}" target="_blank">→ ${l.label}</a>`).join('');
+        } catch (e) { console.error("Config missing"); }
     }
 
     async function init() {
-        const response = await fetch('data.json?t=' + Date.now());
-        const data = await response.json();
-        rawSystems = data.Systems;
-        
-        // Populate Filter Column Dropdown once
-        if (document.getElementById('filter-col').options.length === 1) {
-            Object.keys(rawSystems[0]).forEach(key => {
-                let opt = document.createElement('option'); opt.value = key; opt.innerText = key;
-                document.getElementById('filter-col').appendChild(opt);
-            });
-        }
-        
-        updateHeader(data.LastUpdated);
-        handleApiMode(); // Check if we need to output raw text for IRM
-        applyCurrentView();
+        try {
+            const response = await fetch('data.json?t=' + Date.now());
+            const text = await response.text();
+            if (text === lastDataStr) return;
+            lastDataStr = text;
+            const data = JSON.parse(text);
+            rawSystems = data.Systems;
+            
+            if (document.getElementById('filter-col').options.length === 1 && rawSystems.length > 0) {
+                Object.keys(rawSystems[0]).forEach(key => {
+                    let opt = document.createElement('option'); opt.value = key; opt.innerText = key;
+                    document.getElementById('filter-col').appendChild(opt);
+                });
+            }
+            
+            updateHeader(data.LastUpdated);
+            handleApiMode();
+            applyCurrentView();
+        } catch (e) { document.getElementById('update-time').innerText = "Offline"; }
     }
 
-    function handleApiMode() {
-        const params = new URLSearchParams(window.location.search);
-        const nameFilter = params.get('name');
-        const format = params.get('format');
+    setInterval(init, 120000);
 
-        if (nameFilter && format === 'json') {
-            const match = rawSystems.find(s => s.Name.toLowerCase() === nameFilter.toLowerCase());
+    function handleApiMode() {
+        const p = new URLSearchParams(window.location.search);
+        if (p.get('format') === 'json') {
+            const name = p.get('name');
+            const match = name ? rawSystems.find(s => s.Name.toLowerCase() === name.toLowerCase()) : rawSystems;
             document.getElementById('dashboard-ui').style.display = 'none';
             document.getElementById('api-output').style.display = 'block';
-            document.getElementById('api-output').innerHTML = `<pre>${JSON.stringify(match || {error: "Not Found"}, null, 2)}</pre>`;
+            document.getElementById('api-output').innerHTML = `<pre>${JSON.stringify(match || {error:"Not Found"}, null, 2)}</pre>`;
         }
     }
 
@@ -173,14 +231,11 @@
         const isCase = document.getElementById('case-sensitive').checked;
 
         currentData = rawSystems.filter(s => {
-            const fieldsToSearch = col === 'all' ? Object.values(s) : [s[col]];
-            return fieldsToSearch.some(val => {
-                let v = String(val);
-                let t = String(term);
-                
+            const fields = col === 'all' ? Object.values(s) : [s[col]];
+            return fields.some(val => {
+                let v = String(val), t = String(term);
                 if (!isCase) { v = v.toLowerCase(); t = t.toLowerCase(); }
-                if (t === "") return true;
-                return isExact ? v === t : v.includes(t);
+                return t === "" ? true : (isExact ? v === t : v.includes(t));
             });
         });
 
@@ -191,7 +246,9 @@
     function renderTable() {
         const body = document.getElementById('table-body');
         const head = document.getElementById('table-head');
+        if (!rawSystems[0]) return;
         const cols = Object.keys(rawSystems[0]);
+
         head.innerHTML = `<tr>${cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('')}</tr>`;
         
         const start = (currentPage - 1) * pageSize;
@@ -204,7 +261,7 @@
                 return `<td data-label="${c}"><span class="badge ${(p/t)===1?'health-green':'health-red'}">${val}</span></td>`;
             }
             return `<td data-label="${c}">${val}</td>`;
-        }).join('')}</tr>`).join('') || '<tr><td colspan="100%" style="text-align:center;">No matches</td></tr>';
+        }).join('')}</tr>`).join('') || '<tr><td colspan="100%" style="text-align:center; padding:3rem;">No matching systems found.</td></tr>';
         
         renderPagination();
     }
@@ -215,7 +272,7 @@
         if (totalPages <= 1) { container.innerHTML = ''; return; }
         container.innerHTML = `
             <button class="btn" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>Prev</button>
-            <span style="font-size:0.8rem; font-weight:600;">${currentPage} / ${totalPages}</span>
+            <span style="font-size:0.85rem; font-weight:700;">${currentPage} / ${totalPages}</span>
             <button class="btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next</button>
         `;
     }
@@ -223,13 +280,13 @@
     function changePage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
     function changePageSize(s) { pageSize = s; currentPage = 1; renderTable(); }
     function sortTable(c) { currentData.sort((a,b) => a[c] > b[c] ? 1 : -1); renderTable(); }
-    function updateHeader(ts) { document.getElementById('update-time').innerText = `Scan: ${new Date(ts).toLocaleTimeString()}`; }
+    function updateHeader(ts) { document.getElementById('update-time').innerText = `Updated: ${new Date(ts).toLocaleTimeString()}`; }
     function setTheme(v) { document.documentElement.setAttribute('data-theme',v); localStorage.setItem('pref-theme',v); }
     
     function exportToCSV() {
         const cols = Object.keys(rawSystems[0]);
         const csv = [cols.join(','), ...currentData.map(r => cols.map(c => `"${r[c]}"`).join(','))].join('\n');
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download=`export.csv`; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download=`inventory_export.csv`; a.click();
     }
 
     const savedTheme = localStorage.getItem('pref-theme') || 'system';
