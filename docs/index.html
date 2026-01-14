@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="system">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,144 +14,200 @@
             --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
             --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
         }
+        @media (prefers-color-scheme: dark) {
+            [data-theme="system"] {
+                --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
+                --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
+            }
+        }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        
-        .main-layout { display: flex; flex: 1; padding: 1.5rem; gap: 1.5rem; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; transition: background 0.3s; display: flex; flex-direction: column; min-height: 100vh; }
+        .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; flex: 1; width: 100%; box-sizing: border-box; }
+
         /* Summary Ribbon */
         .summary-ribbon { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-card { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
+        .stat-card { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
         .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-color); }
-        .stat-card h3 { margin: 0; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
-        .stat-card .value { font-size: 1.75rem; font-weight: 800; margin-top: 0.25rem; }
+        .stat-card h3 { margin: 0; font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+        .stat-card .value { font-size: 1.6rem; font-weight: 800; margin-top: 0.5rem; }
 
-        .sidebar { width: 260px; flex-shrink: 0; background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); height: fit-content; }
-        .sidebar-section { margin-bottom: 1.5rem; }
-        .sidebar-section h4 { margin: 0 0 0.75rem 0; font-size: 0.85rem; text-transform: uppercase; color: #64748b; }
+        /* Action Bar */
+        .action-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 1.5rem; background: var(--card-bg); padding: 0.75rem; border-radius: 12px; border: 1px solid var(--border-color); position: sticky; top: 80px; z-index: 900; }
+        .search-wrapper { flex-grow: 1; }
+        input[type="text"] { width: 100%; padding: 0.7rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); box-sizing: border-box; outline: none; }
+        input[type="text"]:focus { border-color: var(--accent-color); }
 
-        .content { flex-grow: 1; min-width: 0; }
-        input[type="text"] { padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); width: 100%; box-sizing: border-box; margin-bottom: 1rem; font-size: 1rem; }
-
-        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
-        th { background: var(--hover-bg); padding: 1rem; text-align: left; font-size: 0.75rem; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        /* Table UI */
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 1rem; font-size: 0.75rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; white-space: nowrap; }
         td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
-        
-        .badge { padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; }
+        tr:hover { background: var(--hover-bg); }
+
+        /* Footer UI */
+        footer { background: var(--card-bg); border-top: 1px solid var(--border-color); padding: 2.5rem 2rem; margin-top: 3rem; color: #64748b; }
+        .footer-content { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .footer-section h4 { color: var(--text-color); margin-bottom: 1rem; font-size: 0.9rem; text-transform: uppercase; }
+        .footer-bottom { max-width: 1600px; margin: 2rem auto 0; padding-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; flex-wrap: wrap; gap: 10px; }
+        .status-dot { height: 10px; width: 10px; background-color: var(--green); border-radius: 50%; display: inline-block; margin-right: 6px; box-shadow: 0 0 8px var(--green); }
+
+        /* Badges & Buttons */
+        .badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; }
         .health-red { background: #fee2e2; color: #991b1b; }
         .health-green { background: #dcfce7; color: #166534; }
         .health-yellow { background: #fef9c3; color: #854d0e; }
-        
-        .copy-btn, .maint-btn { padding: 4px 8px; border-radius: 4px; background: var(--hover-bg); border: 1px solid var(--border-color); cursor: pointer; font-size: 10px; margin-left: 4px; }
-        .disk-bar-bg { width: 80px; height: 6px; background: #e2e8f0; border-radius: 3px; margin-top: 4px; }
-        .disk-bar-fill { height: 100%; border-radius: 3px; }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+        .btn:hover { background: var(--hover-bg); border-color: var(--accent-color); }
+
+        /* Mobile View (Card Mode) */
+        @media (max-width: 850px) {
+            .summary-ribbon { grid-template-columns: 1fr 1fr; }
+            .action-bar { flex-direction: column; align-items: stretch; }
+            thead { display: none; }
+            tr { display: block; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 12px; padding: 0.5rem; background: var(--card-bg); }
+            td { display: flex; justify-content: space-between; border: none; padding: 0.6rem 1rem; text-align: right; }
+            td::before { content: attr(data-label); font-weight: bold; text-align: left; color: #64748b; margin-right: 1rem; font-size: 0.75rem; text-transform: uppercase; }
+        }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h2 style="margin:0;">CloudOps Dashboard</h2>
-    <div style="display: flex; gap: 20px; align-items: center;">
-        <div id="update-time" style="font-size: 0.85rem;">Checking freshness...</div>
-        <button class="btn" style="background:var(--border-color); border:none; padding:8px; border-radius:6px; cursor:pointer;" id="theme-toggle">🌓 Theme</button>
+    <div style="display:flex; align-items:center; gap:12px;">
+        <h2 style="margin:0; font-size: 1.3rem;">CloudOps Inventory</h2>
+        <span id="update-time" style="font-size: 0.75rem; font-weight: 600; opacity: 0.7;">Initializing...</span>
+    </div>
+    <div style="display:flex; gap:12px; align-items:center;">
+        <select id="theme-select" class="btn" onchange="setTheme(this.value)">
+            <option value="system">🌓 System Theme</option>
+            <option value="light">☀️ Light</option>
+            <option value="dark">🌙 Dark</option>
+        </select>
+        <button class="btn" onclick="exportToCSV()">📂 Export CSV</button>
     </div>
 </div>
 
-<div class="main-layout">
-    <div class="sidebar">
-        <div class="sidebar-section">
-            <h4>Grouping</h4>
-            <select id="group-select" onchange="renderTable(currentData)" style="width:100%; padding: 8px; border-radius: 6px;">
-                <option value="none">No Grouping</option>
-                <option value="Environment">By Environment</option>
+<div class="container">
+    <div class="summary-ribbon">
+        <div class="stat-card" onclick="resetFilters()">
+            <h3>Total Systems</h3>
+            <div class="value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card" onclick="filterByHealth()">
+            <h3>Critical Health</h3>
+            <div class="value" id="stat-critical" style="color:var(--red)">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Next Sync</h3>
+            <div class="value" id="sync-timer" style="color:var(--accent-color)">120s</div>
+        </div>
+        <div class="stat-card">
+            <h3>Group View</h3>
+            <select id="group-select" onchange="applyCurrentView()" style="border:none; background:transparent; font-weight:800; color:var(--accent-color); font-size: 1.3rem; cursor:pointer; width:100%; outline:none;">
+                <option value="none">Ungrouped</option>
+                <option value="Environment">By Env</option>
                 <option value="BU">By BU</option>
             </select>
         </div>
-        <div class="sidebar-section">
-            <h4>Controls</h4>
-            <button onclick="init()" style="width:100%; margin-bottom:10px; padding:8px; cursor:pointer;">🔄 Refresh Data</button>
-            <button onclick="exportToCSV()" style="width:100%; padding:8px; cursor:pointer;">📂 Export CSV</button>
-        </div>
     </div>
 
-    <div class="content">
-        <div class="summary-ribbon">
-            <div class="stat-card" onclick="resetFilters()">
-                <h3>Total Systems</h3>
-                <div class="value" id="stat-total">0</div>
-            </div>
-            <div class="stat-card" onclick="filterByHealth('health-red')">
-                <h3>Critical Health</h3>
-                <div class="value" id="stat-critical" style="color: var(--red);">0</div>
-            </div>
-            <div class="stat-card" onclick="filterByDisk()">
-                <h3>Low Disk (< 10GB)</h3>
-                <div class="value" id="stat-disk" style="color: var(--orange);">0</div>
-            </div>
+    <div class="action-bar">
+        <div class="search-wrapper">
+            <input type="text" id="search-bar" placeholder="Universal search (Host, IP, BU, Owner)..." oninput="applyCurrentView()">
         </div>
+        <button class="btn" onclick="init()">🔄 Sync Now</button>
+    </div>
 
-        <input type="text" id="search-bar" placeholder="Universal search (Host, BU, Tenant, User)...">
-        
-        <div class="table-container">
-            <table>
-                <thead id="table-head"></thead>
-                <tbody id="table-body"></tbody>
-            </table>
-        </div>
+    <div class="table-container">
+        <table>
+            <thead id="table-head"></thead>
+            <tbody id="table-body"></tbody>
+        </table>
     </div>
 </div>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-section">
+            <h4>Inventory Master</h4>
+            <p style="font-size: 0.8rem; line-height: 1.5;">Enterprise asset tracking dashboard. Data is gathered via automated PowerShell collection scripts and deployed via GitHub Actions.</p>
+        </div>
+        <div class="footer-section">
+            <h4>Platform Status</h4>
+            <p style="font-size: 0.8rem;"><span class="status-dot"></span> All Systems Operational</p>
+            <p style="font-size: 0.8rem;" id="footer-sync-text">Auto-refresh active (120s interval)</p>
+        </div>
+        <div class="footer-section">
+            <h4>Resources</h4>
+            <a href="#" style="font-size: 0.8rem; color:inherit; text-decoration:none; display:block; margin-bottom:5px;">📋 API Docs</a>
+            <a href="#" style="font-size: 0.8rem; color:inherit; text-decoration:none; display:block;">🛠️ Support Desk</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div>&copy; 2026 Your Organization. Managed by CloudOps Team.</div>
+        <div id="footer-refresh-label" style="opacity: 0.8;">Data synchronizing...</div>
+    </div>
+</footer>
 
 <script>
     let rawSystems = [];
     let currentData = [];
-    let maintenanceList = JSON.parse(localStorage.getItem('maint_list') || '[]');
+    let countdown = 120;
+    let lastDataString = "";
 
     async function init() {
         try {
-            const response = await fetch('data.json');
-            const data = await response.json();
+            const response = await fetch('data.json?t=' + Date.now());
+            const text = await response.text();
+            
+            // Only re-render if data is different
+            if (text === lastDataString) return;
+            lastDataString = text;
+            
+            const data = JSON.parse(text);
             rawSystems = data.Systems;
             
-            checkDataFreshness(data.LastUpdated);
-            updateSummaryCards();
-            handleInitialState();
-        } catch (e) {
-            document.getElementById('table-body').innerHTML = `<tr><td colspan="5">Error loading data.json</td></tr>`;
+            updateHeader(data.LastUpdated);
+            updateSummary();
+            applyCurrentView();
+            countdown = 120; // Reset timer on successful fetch
+        } catch (e) { 
+            console.error("Fetch failed", e);
+            document.getElementById('update-time').innerText = "Sync Failed";
         }
     }
 
-    function updateSummaryCards() {
+    function updateHeader(timestamp) {
+        const lastUpdate = new Date(timestamp);
+        const timeEl = document.getElementById('update-time');
+        const diff = (new Date() - lastUpdate) / 3600000;
+        
+        timeEl.innerText = `Last Scan: ${lastUpdate.toLocaleTimeString()}`;
+        if (diff > 24) {
+            timeEl.style.color = 'var(--red)';
+            timeEl.style.animation = 'pulse 2s infinite';
+        } else {
+            timeEl.style.color = 'inherit';
+            timeEl.style.animation = 'none';
+        }
+    }
+
+    function updateSummary() {
         document.getElementById('stat-total').innerText = rawSystems.length;
         document.getElementById('stat-critical').innerText = rawSystems.filter(s => {
             const [p, t] = s.ChecksPassed.split('/').map(Number);
-            return (p / t) < 0.5;
+            return (p/t) < 0.5;
         }).length;
-        document.getElementById('stat-disk').innerText = rawSystems.filter(s => parseInt(s.FreeDiskSpace) < 10).length;
     }
 
-    function checkDataFreshness(timestamp) {
-        const updateEl = document.getElementById('update-time');
-        const lastUpdate = new Date(timestamp);
-        const hoursOld = (new Date() - lastUpdate) / (1000 * 60 * 60);
-        updateEl.innerText = `Scan: ${lastUpdate.toLocaleString()}`;
-        if (hoursOld > 24) {
-            updateEl.style.color = "var(--red)";
-            updateEl.style.fontWeight = "bold";
-            updateEl.style.animation = "pulse 2s infinite";
-        } else {
-            updateEl.style.color = "var(--green)";
-            updateEl.style.animation = "none";
-        }
-    }
-
-    function handleInitialState() {
-        const params = new URLSearchParams(window.location.search);
-        const nameFilter = params.get('name')?.toLowerCase();
-        currentData = nameFilter ? rawSystems.filter(s => s.Name.toLowerCase() === nameFilter) : rawSystems.filter(s => s.Name.includes('Buffer'));
+    function applyCurrentView() {
+        const term = document.getElementById('search-bar').value.toLowerCase();
+        currentData = rawSystems.filter(s => 
+            Object.values(s).some(v => String(v).toLowerCase().includes(term))
+        );
         renderTable(currentData);
     }
 
@@ -159,90 +215,69 @@
         const body = document.getElementById('table-body');
         const head = document.getElementById('table-head');
         const groupKey = document.getElementById('group-select').value;
-        if (rawSystems.length === 0) return;
         const cols = Object.keys(rawSystems[0]);
 
         head.innerHTML = `<tr>${cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('')}</tr>`;
         
         let html = '';
         if (groupKey === 'none') {
-            html = data.map(row => renderRow(row, cols)).join('');
+            html = data.map(row => generateRow(row, cols)).join('');
         } else {
-            const groups = data.reduce((acc, row) => {
-                acc[row[groupKey]] = [...(acc[row[groupKey]] || []), row];
-                return acc;
-            }, {});
-            for (const [name, rows] of Object.entries(groups)) {
-                html += `<tr style="background:#64748b22; font-weight:bold;"><td colspan="${cols.length}">${name} (${rows.length})</td></tr>`;
-                html += rows.map(row => renderRow(row, cols)).join('');
+            const grouped = data.reduce((r, a) => { r[a[groupKey]] = [...r[a[groupKey]] || [], a]; return r; }, {});
+            for (const [key, rows] of Object.entries(grouped)) {
+                html += `<tr style="background:rgba(100,100,100,0.1); font-weight:bold;"><td colspan="${cols.length}">${key} (${rows.length})</td></tr>`;
+                html += rows.map(row => generateRow(row, cols)).join('');
             }
         }
-        body.innerHTML = html || '<tr><td colspan="100%" style="text-align:center; padding:2rem;">No matching systems found</td></tr>';
+        body.innerHTML = html || '<tr><td colspan="100%" style="text-align:center; padding:3rem;">No records match your criteria.</td></tr>';
     }
 
-    function renderRow(row, cols) {
-        const isMaint = maintenanceList.includes(row.Name);
-        return `<tr class="${isMaint ? 'in-maintenance' : ''}" style="${isMaint ? 'opacity:0.5' : ''}">${cols.map(c => {
+    function generateRow(row, cols) {
+        return `<tr>${cols.map(c => {
             let val = row[c] || '';
             if (c === 'ChecksPassed') {
                 const [p, t] = val.split('/').map(Number);
-                const ratio = p / t;
-                const style = ratio === 1 ? 'health-green' : ratio >= 0.8 ? 'health-yellow' : 'health-red';
-                return `<td><span class="badge ${style}">${val}</span></td>`;
+                const style = (p/t) === 1 ? 'health-green' : (p/t) >= 0.8 ? 'health-yellow' : 'health-red';
+                return `<td data-label="${c}"><span class="badge ${style}">${val}</span></td>`;
             }
             if (c === 'FreeDiskSpace') {
-                const num = parseInt(val);
-                return `<td>${val}<div class="disk-bar-bg"><div class="disk-bar-fill" style="width:${Math.min(num, 100)}%; background:${num < 10 ? 'var(--red)' : 'var(--green)'}"></div></div></td>`;
+                const n = parseInt(val);
+                return `<td data-label="${c}">${val}<div style="width:60px; height:4px; background:#eee; border-radius:2px; margin-top:4px;"><div style="width:${Math.min(n,100)}%; height:100%; background:${n<10?'var(--red)':'var(--green)'}; border-radius:2px;"></div></div></td>`;
             }
-            if (c === 'Name') return `<td><strong>${val}</strong> <button class="copy-btn" onclick="copyText('${val}')">📋</button> <button class="maint-btn" onclick="toggleMaint('${val}')">${isMaint ? '✅' : '🛠️'}</button></td>`;
-            return `<td>${val}</td>`;
+            if (c === 'Name') return `<td data-label="${c}"><strong>${val}</strong><button style="border:none; background:none; cursor:pointer; opacity:0.4;" onclick="navigator.clipboard.writeText('${val}')">📋</button></td>`;
+            return `<td data-label="${c}">${val}</td>`;
         }).join('')}</tr>`;
     }
 
-    // --- Quick Filter Functions ---
-    function filterByHealth(className) {
-        currentData = rawSystems.filter(s => {
-            const [p, t] = s.ChecksPassed.split('/').map(Number);
-            return (p / t) < 0.5;
-        });
-        renderTable(currentData);
-    }
-
-    function filterByDisk() {
-        currentData = rawSystems.filter(s => parseInt(s.FreeDiskSpace) < 10);
-        renderTable(currentData);
-    }
-
-    function resetFilters() {
-        currentData = [...rawSystems];
-        renderTable(currentData);
-        document.getElementById('search-bar').value = '';
-    }
-
-    function toggleMaint(id) {
-        maintenanceList = maintenanceList.includes(id) ? maintenanceList.filter(x => x !== id) : [...maintenanceList, id];
-        localStorage.setItem('maint_list', JSON.stringify(maintenanceList));
-        renderTable(currentData);
-    }
-
-    function copyText(txt) { navigator.clipboard.writeText(txt); }
-
-    document.getElementById('search-bar').addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        currentData = rawSystems.filter(s => Object.values(s).some(v => String(v).toLowerCase().includes(term)));
-        renderTable(currentData);
-    });
-
-    const toggleBtn = document.getElementById('theme-toggle');
-    toggleBtn.addEventListener('click', () => {
-        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    });
-    if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    // Timer & Automations
+    setInterval(() => {
+        countdown--;
+        if (countdown <= 0) init();
+        document.getElementById('sync-timer').innerText = countdown + "s";
+        document.getElementById('footer-refresh-label').innerText = `Next data synchronization in ${countdown} seconds`;
+    }, 1000);
 
     function sortTable(c) {
         currentData.sort((a,b) => a[c] > b[c] ? 1 : -1);
+        renderTable(currentData);
+    }
+
+    function setTheme(val) {
+        document.documentElement.setAttribute('data-theme', val);
+        localStorage.setItem('pref-theme', val);
+    }
+
+    function resetFilters() { 
+        document.getElementById('search-bar').value = ''; 
+        document.getElementById('group-select').value = 'none';
+        applyCurrentView(); 
+    }
+
+    function filterByHealth() {
+        currentData = rawSystems.filter(s => {
+            const [p, t] = s.ChecksPassed.split('/').map(Number);
+            return (p/t) < 0.5;
+        });
         renderTable(currentData);
     }
 
@@ -250,11 +285,17 @@
         const cols = Object.keys(rawSystems[0]);
         const csv = [cols.join(','), ...rawSystems.map(r => cols.map(c => `"${r[c]}"`).join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'inventory.csv'; a.click();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `inventory_export_${new Date().getTime()}.csv`;
+        a.click();
     }
+
+    const savedTheme = localStorage.getItem('pref-theme') || 'system';
+    setTheme(savedTheme);
+    document.getElementById('theme-select').value = savedTheme;
 
     init();
 </script>
 </body>
-                </html>
-                    
+</html>
