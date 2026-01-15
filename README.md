@@ -108,6 +108,11 @@ Retrieve specific data or filter views via URL:
 
 ### 📈 Version Changelog
 
+#### **v16.7 (Current)**
+* **Feature:** Enhanced **Pagination** with options for 25, 50, 100, 500, and "Show All" (999k rows).
+* **Fix:** Re-ordered `init()` lifecycle to ensure **URL Filters** and `?format=json` are processed correctly after configuration and data loads.
+* **API:** Validated `format=json` for PowerShell `Invoke-RestMethod` compatibility; it now returns a raw string without HTML overhead.
+
 #### **v16.5 (Current)**
 
 * **Feature:** Switched to **Direct Numeric Logic**. Math operators (, , etc.) now only appear for fields explicitly listed in the `numericFields` array within `mapping.json`.
