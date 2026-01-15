@@ -1,14 +1,12 @@
 {
-  "Name": "Machine Name",
+  "Name": "System Name",
   "Environment": "Env",
   "Tenant": "Tenant",
-  "Folder": "Folder",
-  "BU": "BU",
-  "Uptime": "Uptime(days)",
-  "Restartgroup": "Restart Group",
-  "MaintenanceGroup": "Maintenance Group",
+  "Uptime": "Uptime",
+  "FreeDiskSpace": "Disk Free",
+  "ChecksPassed": "Health",
   "Restart Authorization": "Restart Auth",
-  "FreeDiskSpace": "Free Disk",
-  "Username": "UserName",
-  "ChecksPassed": "Health"
+  "__meta_config__": {
+    "ignoredNumericFields": ["Name", "Username", "Folder", "Restartgroup", "IPAddress"]
+  }
 }
