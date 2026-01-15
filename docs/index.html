@@ -24,16 +24,16 @@
             --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
             --footer-bg: #010409;
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; transition: background 0.2s; }
-        .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: var(--card-bg); padding: 0.8rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; flex: 1; width: 100%; box-sizing: border-box; }
         .filter-panel { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
         .filter-group { display: flex; flex-direction: column; gap: 5px; }
         .filter-group label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
-        input[type="text"], select { padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); outline: none; }
-        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; }
+        input[type="text"], select { padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); outline: none; font-size: 0.85rem; }
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { padding: 1rem; font-size: 0.7rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; color: #64748b; }
+        th { padding: 1rem; font-size: 0.7rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; color: #64748b; white-space: nowrap; }
         td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; white-space: nowrap; }
         .badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.72rem; display: inline-block; }
         .stat-green { background: #dcfce7; color: #166534; }
@@ -41,17 +41,22 @@
         .stat-orange { background: #ffedd5; color: #9a3412; }
         .stat-red { background: #fee2e2; color: #991b1b; }
         .stat-blue { background: #dbeafe; color: #1e40af; }
-        .progress-wrap { width: 60px; height: 5px; background: rgba(100,116,139,0.2); border-radius: 3px; margin-top: 5px; }
-        .progress-fill { height: 100%; border-radius: 3px; }
-        footer { background: var(--footer-bg); color: #94a3b8; padding: 2.5rem 2rem; margin-top: auto; border-top: 4px solid var(--accent-color); }
-        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+        .progress-wrap { width: 80px; height: 6px; background: rgba(100,116,139,0.2); border-radius: 3px; margin-top: 5px; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+        footer { background: var(--footer-bg); color: #94a3b8; padding: 2rem; margin-top: auto; border-top: 4px solid var(--accent-color); }
+        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: all 0.2s; }
+        .btn:hover { background: var(--hover-bg); border-color: var(--accent-color); }
+        #last-updated { font-size: 0.75rem; color: #64748b; font-weight: normal; }
     </style>
 </head>
 <body>
 
 <div id="dashboard-ui">
     <div class="header">
-        <h2 id="display-title" style="margin:0; font-size: 1.2rem;">...</h2>
+        <div>
+            <h2 id="display-title" style="margin:0; font-size: 1.2rem;">...</h2>
+            <div id="last-updated">Checking for updates...</div>
+        </div>
         <div style="display:flex; gap:10px;">
             <button id="install-btn" class="btn" style="display:none; background:var(--accent-color); color:white; border:none;">📲 Install</button>
             <select id="theme-select" class="btn" onchange="setTheme(this.value)">
@@ -59,7 +64,7 @@
                 <option value="light">☀️ Light</option>
                 <option value="dark">🌙 Dark</option>
             </select>
-            <button class="btn" onclick="exportToCSV()">📂 Export</button>
+            <button class="btn" onclick="exportToCSV()">📂 Export CSV</button>
         </div>
     </div>
 
@@ -84,20 +89,18 @@
             </div>
             <div class="filter-group" style="flex-grow: 1;">
                 <label>Value</label>
-                <input type="text" id="search-bar" placeholder="Enter search term..." oninput="currentPage=1; applyCurrentView()" style="width:100%;">
+                <input type="text" id="search-bar" placeholder="Type to filter..." oninput="currentPage=1; applyCurrentView()" style="width:100%;">
             </div>
         </div>
 
         <div style="display:flex; justify-content:space-between; margin-bottom:1rem; align-items:center;">
             <div id="pagination-controls" style="display:flex; gap:5px;"></div>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span id="result-count" style="font-size:0.8rem; font-weight:bold; color:var(--accent-color);"></span>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <span id="result-count" style="font-size:0.85rem; font-weight:700; color:var(--accent-color);"></span>
                 <select id="page-size" onchange="changePageSize(this.value)" class="btn">
-                    <option value="25">Show 25</option>
-                    <option value="50">Show 50</option>
-                    <option value="100">Show 100</option>
-                    <option value="500">Show 500</option>
-                    <option value="999999">Show All</option>
+                    <option value="25">Show 25</option><option value="50">Show 50</option>
+                    <option value="100">Show 100</option><option value="500">Show 500</option>
+                    <option value="1000000">Show All</option>
                 </select>
             </div>
         </div>
@@ -116,9 +119,8 @@
 </div>
 
 <script>
-    let rawSystems = [], currentData = [], columnMapping = {};
+    let rawSystems = [], currentData = [], columnMapping = {}, numericFields = [];
     let currentPage = 1, pageSize = 25;
-    let numericFields = []; 
 
     function setTheme(v) {
         document.documentElement.setAttribute('data-theme', v);
@@ -127,7 +129,10 @@
     }
 
     async function loadConfig() {
-        const [cR, mR] = await Promise.all([fetch('config.json?t='+Date.now()), fetch('mapping.json?t='+Date.now())]);
+        const [cR, mR] = await Promise.all([
+            fetch('config.json?t='+Date.now()), 
+            fetch('mapping.json?t='+Date.now())
+        ]);
         const conf = await cR.json(); 
         const mappingData = await mR.json();
         
@@ -139,7 +144,9 @@
 
         document.getElementById('display-title').innerText = conf.dashboardTitle;
         document.getElementById('footer-org-name').innerText = conf.footer.orgName;
-        document.getElementById('footer-links').innerHTML = conf.footer.resources.map(l => `<a href="${l.url}" style="color:inherit; text-decoration:none; font-size:0.75rem;">${l.label}</a>`).join('');
+        document.getElementById('footer-links').innerHTML = conf.footer.resources.map(l => 
+            `<a href="${l.url}" style="color:inherit; text-decoration:none; font-size:0.75rem;">${l.label}</a>`
+        ).join('');
         
         const drop = document.getElementById('filter-col');
         Object.keys(columnMapping).forEach(k => {
@@ -149,21 +156,22 @@
     }
 
     async function init() {
-        await loadConfig(); // Wait for config first
+        await loadConfig();
         const res = await fetch('data.json?t=' + Date.now());
         const data = await res.json();
+        
         rawSystems = data.Systems;
+        document.getElementById('last-updated').innerText = `Data Updated: ${data.LastUpdated || 'N/A'}`;
 
         const params = new URLSearchParams(window.location.search);
         
-        // 1. JSON API Logic (Handles Powershell Invoke-RestMethod or browser)
+        // Browser Redirect for ?format=json
         if (params.get('format') === 'json') {
-            document.body.innerHTML = JSON.stringify(rawSystems); // Pure JSON string
-            document.body.style.fontFamily = "monospace";
+            window.location.href = 'data.json';
             return;
         }
 
-        // 2. UI Filtering Logic
+        // Apply URL Filters
         params.forEach((val, key) => {
             if (columnMapping[key]) {
                 document.getElementById('filter-col').value = key;
@@ -184,8 +192,7 @@
     }
 
     function updateFilterUI() {
-        const col = document.getElementById('filter-col').value;
-        const isNum = numericFields.includes(col);
+        const isNum = numericFields.includes(document.getElementById('filter-col').value);
         document.getElementById('num-op-group').style.display = isNum ? 'flex' : 'none';
         document.getElementById('match-mode-group').style.display = isNum ? 'none' : 'flex';
     }
@@ -200,9 +207,10 @@
             if (col === 'all') return Object.values(s).some(v => String(v).toLowerCase().includes(term));
             let rawV = s[col], val = sanitize(rawV), t = sanitize(term);
             
-            if (numericFields.includes(col) && term !== "" && document.getElementById('num-op-group').style.display === 'flex') {
-                if (op === 'gt') return val > t; if (op === 'lt') return val < t; if (op === 'eq') return val === t;
-                if (op === 'gte') return val >= t; if (op === 'lte') return val <= t;
+            if (numericFields.includes(col) && term !== "") {
+                if (op === 'gt') return val > t; if (op === 'lt') return val < t;
+                if (op === 'eq') return val === t; if (op === 'gte') return val >= t;
+                if (op === 'lte') return val <= t;
             }
             let strV = String(rawV).toLowerCase();
             return isExact ? strV === term : strV.includes(term);
@@ -225,7 +233,7 @@
         if (key === 'ChecksPassed') {
             const [p, t] = val.split('/').map(Number);
             const per = (p/t) * 100;
-            const cls = per === 100 ? 'stat-green' : per >= 80 ? 'stat-yellow' : per >= 50 ? 'stat-orange' : 'stat-red';
+            const cls = per === 100 ? 'stat-green' : per >= 80 ? 'stat-yellow' : 'stat-red';
             return `<span class="badge ${cls}">${val}</span>`;
         }
         if (key === 'FreeDiskSpace') {
@@ -239,9 +247,12 @@
             return `<span class="badge ${cls}">${val}</span>`;
         }
         const vL = String(val).toLowerCase();
-        if (vL === 'authorized' || vL === 'production') return `<span class="badge stat-blue">${val}</span>`;
-        if (vL === 'pending' || vL === 'global') return `<span class="badge stat-orange">${val}</span>`;
-        if (vL === 'none' || vL === 'denied') return `<span class="badge stat-red">${val}</span>`;
+        const blue = ['authorized', 'production', 'global'];
+        const orange = ['pending', 'warning'];
+        const red = ['none', 'denied', 'critical'];
+        if (blue.includes(vL)) return `<span class="badge stat-blue">${val}</span>`;
+        if (orange.includes(vL)) return `<span class="badge stat-orange">${val}</span>`;
+        if (red.includes(vL)) return `<span class="badge stat-red">${val}</span>`;
         return val;
     }
 
@@ -249,14 +260,24 @@
         const container = document.getElementById('pagination-controls');
         const totalPages = Math.ceil(currentData.length / pageSize);
         if (totalPages <= 1) { container.innerHTML = ''; return; }
-        container.innerHTML = `<button class="btn" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>Prev</button>
-        <span style="font-weight:bold; font-size:0.8rem;">${currentPage} / ${totalPages}</span>
-        <button class="btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next</button>`;
+        container.innerHTML = `
+            <button class="btn" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>Prev</button>
+            <span style="font-weight:bold; font-size:0.8rem; margin: 0 10px;">${currentPage} / ${totalPages}</span>
+            <button class="btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next</button>`;
     }
 
     function changePage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
     function changePageSize(s) { pageSize = parseInt(s); currentPage = 1; renderTable(); }
     function sortTable(k) { currentData.sort((a,b) => { let av = sanitize(a[k]), bv = sanitize(b[k]); return av > bv ? 1 : -1; }); renderTable(); }
+
+    function exportToCSV() {
+        let csv = Object.values(columnMapping).join(',') + '\n';
+        currentData.forEach(row => { csv += Object.keys(columnMapping).map(k => `"${row[k]}"`).join(',') + '\n'; });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.setAttribute('href', url); a.setAttribute('download', 'Inventory_Export.csv');
+        a.click();
+    }
 
     init();
 </script>
