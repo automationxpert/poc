@@ -271,13 +271,33 @@
     function sortTable(k) { currentData.sort((a,b) => { let av = sanitize(a[k]), bv = sanitize(b[k]); return av > bv ? 1 : -1; }); renderTable(); }
 
     function exportToCSV() {
-        let csv = Object.values(columnMapping).join(',') + '\n';
-        currentData.forEach(row => { csv += Object.keys(columnMapping).map(k => `"${row[k]}"`).join(',') + '\n'; });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.setAttribute('href', url); a.setAttribute('download', 'Inventory_Export.csv');
-        a.click();
-    }
+    // 1. Generate the CSV content
+    let csv = Object.values(columnMapping).join(',') + '\n';
+    currentData.forEach(row => {
+        csv += Object.keys(columnMapping).map(k => `"${row[k]}"`).join(',') + '\n';
+    });
+
+    // 2. Generate the dynamic filename with Date: dd-MM-yyyy_hh-mm
+    const now = new Date();
+    const d = String(now.getDate()).padStart(2, '0');
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const y = now.getFullYear();
+    const hr = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    
+    const fileName = `Inventory_Export_${d}-${m}-${y}_${hr}-${min}.csv`;
+
+    // 3. Trigger the download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', fileName);
+    a.style.visibility = 'hidden';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
 
     init();
 </script>

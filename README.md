@@ -6,21 +6,15 @@ A high-performance, professional system monitoring dashboard designed for **GitH
 
 ---
 
-## 🚀 Key Features
+### 🚀 Key Features
 
-* **PWA Ready (Installable):** Install the dashboard as a native desktop or mobile application. Includes offline-ready support via Service Workers.
-* **Intelligent Data Mapping:** Use `mapping.json` to rename technical JSON keys (e.g., `Restart Authorization`) to professional headers (e.g., `Restart Auth`) and control column order.
-* **Live Health Tracking:** Visual badges for system checks () with smart color-coding (Red < 50%, Orange < 80%, Yellow < 100%, Green = 100%).
-* **Numeric Logic Filtering:** Advanced search allowing `>`, `>=`, `<`, and `<=` operations. The engine automatically strips units like "GB" or "Days" for mathematical accuracy.
-* **Disk Usage Visualizer:** Dynamic progress bars for `FreeDiskSpace` that trigger a red alert when space drops below 10GB.
-* **Uptime Monitoring:** Critical threshold alerts (Red for  days, Orange for  days) to identify systems needing a reboot.
-* **Universal Keyword Engine:** Automatic color-coding for status keywords (*Authorized, Pending, Production, None, Denied*) across all columns.
-* **Enterprise Tooling:**
-* **CSV Export:** Generate reports of your currently filtered view.
-* **Dark Mode:** Full high-contrast dark theme for 24/7 NOC operations.
-* **Stateless API:** Access raw machine data via URL parameters (`?format=json`).
-
-
+* **Hybrid API Engine:** Professional HTML UI for humans and a direct `data.json` endpoint for automation scripts (PowerShell/Python).
+* **Direct Numeric Logic:** Define math-capable columns in `mapping.json` to enable advanced filtering (, , etc.) for metrics like Uptime or Disk Space.
+* **Deep Linking & UI State:** Share specific filtered views using URL parameters (e.g., `?Environment=Production`) that automatically configure the UI on load.
+* **Smart Sanitization:** Built-in logic strips units like "Days" or "GB" during math operations and sorting while keeping them visible for the user.
+* **Adaptive UX:** * **Theme Support:** Automatically respects OS Light/Dark mode settings.
+* **PWA Ready:** Fully installable as a standalone application on Desktop and Mobile.
+* **Stateless & Secure:** 100% client-side architecture with no database required; easily hosted on GitHub Pages or any static web server.
 
 ---
 
@@ -35,6 +29,31 @@ This dashboard is designed to be fully hands-off:
 
 ---
 
+
+## 🛠️ Automation & API Usage
+
+Since this dashboard is hosted on a static environment (GitHub Pages), we use a **Hybrid API** strategy.
+
+### 1. Manual User View (HTML)
+To view the interactive dashboard, simply navigate to the root URL.
+* **Filter via URL:** `index.html?Name=Server01`
+* **JSON Redirect:** `index.html?format=json` (Redirects browser to raw data)
+
+### 2. Scripting / PowerShell View (JSON)
+For automation, point your scripts directly to the `data.json` file. This ensures you receive the correct `application/json` Content-Type header.
+
+**PowerShell Example:**
+```powershell
+# Fetch the inventory as a native object
+$uri = "[https://automationxpert.github.io/poc/data.json](https://automationxpert.github.io/poc/data.json)"
+$inventory = Invoke-RestMethod -Uri $uri
+
+# Example: Filter for systems with low disk space from the script
+$inventory.Systems | Where-Object { [float]($_.FreeDiskSpace -replace 'GB','') -lt 10 } | Format-Table
+
+```
+
+---
 
 ## 🚀 Key Features
 
@@ -108,12 +127,28 @@ Retrieve specific data or filter views via URL:
 
 ### 📈 Version Changelog
 
-#### **v16.7 (Current)**
+#### **v16.10 (Current)**
+* **Feature:** Enhanced **CSV Export** with dynamic filenames. Exported files now follow the naming convention `Inventory_Export_dd-MM-yyyy_hh-mm.csv` for better version tracking.
+
+#### **v16.9**
+
+* **API:** Formalized the **Hybrid API Strategy**. Redirects `?format=json` in browsers and provides direct `data.json` access for scripts.
+* **UI:** Added **"Last Updated"** timestamp to the header, pulling dynamically from `data.json`.
+* **Pagination:** Expanded options to include **25, 50, 100, 500, and "Show All"**.
+* **Logic:** Enhanced URL parameter listener to support **Exact Match** mode automatically when a link is shared.
+
+#### **v16.8**
+
+* Implemented **Direct Numeric Logic** for mathematical filtering.
+* Added **System Theme Detection** (Dark/Light mode) via CSS media queries.
+* Re-implemented health badge color-coding (100/80/50 logic).
+
+#### **v16.7**
 * **Feature:** Enhanced **Pagination** with options for 25, 50, 100, 500, and "Show All" (999k rows).
 * **Fix:** Re-ordered `init()` lifecycle to ensure **URL Filters** and `?format=json` are processed correctly after configuration and data loads.
 * **API:** Validated `format=json` for PowerShell `Invoke-RestMethod` compatibility; it now returns a raw string without HTML overhead.
 
-#### **v16.5 (Current)**
+#### **v16.5**
 
 * **Feature:** Switched to **Direct Numeric Logic**. Math operators (, , etc.) now only appear for fields explicitly listed in the `numericFields` array within `mapping.json`.
 * **Fix:** Robust **System Theme Detection**. Updated CSS variables and media queries to correctly sync with OS dark/light mode settings on all devices.
