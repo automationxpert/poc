@@ -6,41 +6,69 @@
     <link rel="manifest" href="manifest.json">
     <title id="tab-title">Inventory Dashboard</title>
     <style>
+        /* 1. Base Colors (Light Mode) */
         :root {
             --bg-color: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a;
             --accent-color: #2563eb; --border-color: #e2e8f0; --hover-bg: #f1f5f9;
             --red: #ef4444; --orange: #f97316; --yellow: #eab308; --green: #22c55e; --blue: #3b82f6;
             --footer-bg: #0f172a;
         }
+
+        /* 2. Dark Mode Override (Manual or OS-Preferred) */
+        /* This applies if user selects "Dark" OR if "System" is active AND OS is Dark */
+        [data-theme="dark"],
+        [data-theme="system"] {
+            @media (prefers-color-scheme: dark) {
+                --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
+                --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
+                --footer-bg: #010409;
+            }
+        }
+
+        /* Forced Dark (When user explicitly clicks "Dark") */
         [data-theme="dark"] {
             --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
             --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
             --footer-bg: #010409;
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; transition: background 0.2s; }
+
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: var(--bg-color); 
+            color: var(--text-color); 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            transition: background 0.2s, color 0.2s; 
+        }
+
+        /* Header & Panels */
         .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
         .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; flex: 1; width: 100%; box-sizing: border-box; }
-        
         .filter-panel { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
         .filter-group { display: flex; flex-direction: column; gap: 5px; }
         .filter-group label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
         
         input[type="text"], select { padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); outline: none; }
         
-        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        /* Table Styles */
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th { padding: 1rem; font-size: 0.7rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; color: #64748b; }
         td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; white-space: nowrap; }
         
+        /* Badges & Progress */
         .badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.72rem; display: inline-block; }
-        .progress-wrap { width: 60px; height: 5px; background: #eee; border-radius: 3px; margin-top: 5px; }
-        .progress-fill { height: 100%; border-radius: 3px; }
-        
         .stat-green { background: #dcfce7; color: #166534; }
         .stat-yellow { background: #fef9c3; color: #854d0e; }
         .stat-orange { background: #ffedd5; color: #9a3412; }
         .stat-red { background: #fee2e2; color: #991b1b; }
         .stat-blue { background: #dbeafe; color: #1e40af; }
+        
+        .progress-wrap { width: 60px; height: 5px; background: rgba(0,0,0,0.1); border-radius: 3px; margin-top: 5px; }
+        [data-theme="dark"] .progress-wrap { background: rgba(255,255,255,0.1); }
+        .progress-fill { height: 100%; border-radius: 3px; }
         
         footer { background: var(--footer-bg); color: #94a3b8; padding: 2.5rem 2rem; margin-top: auto; border-top: 4px solid var(--accent-color); }
         .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: 600; font-size: 0.8rem; }
@@ -117,12 +145,11 @@
     let rawSystems = [], currentData = [], columnMapping = {};
     let currentPage = 1, pageSize = 25;
 
-    // Theme logic fixed and simplified
+    // Theme Fix: Handles OS preference dynamically
     function setTheme(v) {
         document.documentElement.setAttribute('data-theme', v);
         localStorage.setItem('pref-theme', v);
-        const sel = document.getElementById('theme-select');
-        if (sel) sel.value = v;
+        document.getElementById('theme-select').value = v;
     }
 
     async function loadConfig() {
@@ -133,7 +160,7 @@
             
             document.getElementById('display-title').innerText = conf.dashboardTitle;
             document.getElementById('footer-org-name').innerText = conf.footer.orgName;
-            document.getElementById('footer-copyright').innerText = `© 2026 ${conf.footer.orgName}. Internal Dashboard.`;
+            document.getElementById('footer-copyright').innerText = `© 2026 ${conf.footer.orgName}.`;
             document.getElementById('footer-links').innerHTML = conf.footer.resources.map(l => `<a href="${l.url}" style="color:inherit; text-decoration:none; font-size:0.75rem;">${l.label}</a>`).join('');
             
             const drop = document.getElementById('filter-col');
@@ -141,9 +168,9 @@
                 let o = document.createElement('option'); o.value = k; o.innerText = columnMapping[k]; drop.appendChild(o);
             });
             
-            // Re-apply saved theme after UI loads
+            // Initialization: Apply saved theme
             setTheme(localStorage.getItem('pref-theme') || 'system');
-        } catch(e) { console.error("Initialization error", e); }
+        } catch(e) { console.error("Config failed", e); }
     }
 
     async function init() {
@@ -166,7 +193,6 @@
             document.getElementById('match-mode-group').style.display = 'flex';
             return;
         }
-        // Auto-detect numeric fields
         const sample = sanitize(rawSystems[0][col]);
         const isNum = typeof sample === 'number' && !isNaN(sample);
         document.getElementById('num-op-group').style.display = isNum ? 'flex' : 'none';
@@ -181,7 +207,6 @@
 
         currentData = rawSystems.filter(s => {
             if (col === 'all') return Object.values(s).some(v => String(v).toLowerCase().includes(term));
-            
             let rawV = s[col], val = sanitize(rawV), t = sanitize(term);
             if (typeof val === 'number' && term !== "" && document.getElementById('num-op-group').style.display === 'flex') {
                 if (op === 'gt') return val > t; if (op === 'lt') return val < t; if (op === 'eq') return val === t;
@@ -190,7 +215,7 @@
             let strV = String(rawV).toLowerCase();
             return isExact ? strV === term : strV.includes(term);
         });
-        document.getElementById('result-count').innerText = `${currentData.length} Systems Found`;
+        document.getElementById('result-count').innerText = `${currentData.length} Systems`;
         renderTable();
     }
 
