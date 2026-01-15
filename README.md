@@ -35,7 +35,19 @@ This dashboard is designed to be fully hands-off:
 
 ---
 
-## 📂 Configuration Files
+
+## 🚀 Key Features
+
+* **Direct Numeric Logic:** Explicitly define which columns support mathematical filters ($>$, $<$, etc.) via `mapping.json`.
+* **System Theme Support:** Automatically respects your OS Light/Dark mode settings using CSS media queries.
+* **Smart Unit Handling:** Built-in sanitization strips "Days" or "GB" from values during math operations while keeping them visible in the UI.
+* **PWA Enabled:** Fully installable as a standalone app on desktop and mobile.
+* **Keyword Intelligence:** Automatic color-coded badges for keywords like *Pending, Production, Authorized,* and *Denied*.
+* **Stateless Architecture:** Fully client-side; no database required. Powered by `data.json`.
+
+---
+
+## ⚙️ Configuration Guide
 
 ### `mapping.json` (Required)
 
@@ -58,9 +70,9 @@ Controls branding and footer resources.
 
 ```json
 {
-  "dashboardTitle": "Ops-Center Inventory",
+  "dashboardTitle": "AutomationExpert Inventory",
   "footer": {
-    "orgName": "Global Infrastructure Team",
+    "orgName": "AutomationExpert Team",
     "description": "Internal monitoring for core services.",
     "resources": [
       { "label": "Wiki", "url": "https://internal.wiki" }
@@ -94,27 +106,34 @@ Retrieve specific data or filter views via URL:
 
 ---
 
-## 📈 Version Changelog
+### 📈 Version Changelog
 
-### **v16.0 (Latest)**
+#### **v16.5 (Current)**
 
-* **Unit Sanitization:** Mathematical filtering now works on fields containing text (strips "GB", "Days").
-* **Universal Keyword Formatter:** Keywords like *Pending* or *Authorized* now automatically receive color badges.
-* **Professional Footer:** Redesigned for a minimalist, high-end corporate aesthetic.
+* **Feature:** Switched to **Direct Numeric Logic**. Math operators (, , etc.) now only appear for fields explicitly listed in the `numericFields` array within `mapping.json`.
+* **Fix:** Robust **System Theme Detection**. Updated CSS variables and media queries to correctly sync with OS dark/light mode settings on all devices.
+* **Improvement:** Enhanced **Sanitize Logic** to automatically strip units like "Days" or "GB" during mathematical filtering and sorting while maintaining visibility in the table.
 
-### **v15.0**
+#### **v16.1 - v16.4**
 
-* **Numeric Operators:** Added `>`, `>=`, `<`, and `<=` filtering logic.
-* **PWA Support:** Integrated Web App Manifest and Service Workers for desktop installation.
+* **Maintenance:** Resolved a bug where the theme selector would not save the user's preference correctly.
+* **Feature:** Introduced the `__meta_config__` block in `mapping.json` to allow externalized configuration of app logic without touching the HTML source.
+* **UI:** Added a "Systems Found" results counter and a modernized corporate footer with dynamic link support.
 
-### **v14.0**
+#### **v15.0**
 
-* **Dynamic Mapping:** Introduced `mapping.json` for field aliasing and ordering.
-* **Alert Thresholds:** Added Uptime and Health percentage-based color logic.
+* **Feature:** Added **PWA (Installable)** support, allowing the dashboard to be installed as a native desktop/mobile application.
+* **Logic:** Integrated numeric operator filtering (, , , , ) for numeric data columns.
+* **Visuals:** Re-implemented the 100/80/50 health badge color-coding system for `ChecksPassed`.
 
-### **v1.0 - v13.0**
+#### **v14.0**
 
-* Initial dashboard development, Dark Mode, CSV Export, and Global Search implementation.
+* **Feature:** Dynamic Column Mapping introduced. Columns now follow the order and naming conventions defined in `mapping.json`.
+* **Visuals:** Added Disk Usage progress bars with automatic red-alert thresholds for low space.
+
+#### **v1.0 - v13.0**
+
+* **Core:** Initial development of the dashboard core, global search engine, dark mode toggle, CSV export, and API-style URL parameter support.
 
 ---
 
