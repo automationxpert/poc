@@ -4,122 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
-    <title id="tab-title">System Dashboard</title>
+    <title id="tab-title">Inventory Dashboard</title>
     <style>
         :root {
             --bg-color: #f8fafc; --card-bg: #ffffff; --text-color: #0f172a;
             --accent-color: #2563eb; --border-color: #e2e8f0; --hover-bg: #f1f5f9;
-            --red: #ef4444; --green: #22c55e; --footer-bg: #0f172a;
+            --red: #ef4444; --orange: #f97316; --yellow: #eab308; --green: #22c55e; --blue: #3b82f6;
+            --footer-bg: #0f172a;
         }
         [data-theme="dark"] {
             --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
             --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
             --footer-bg: #010409;
         }
-        @media (prefers-color-scheme: dark) {
-            [data-theme="system"] {
-                --bg-color: #020617; --card-bg: #1e293b; --text-color: #f1f5f9;
-                --accent-color: #38bdf8; --border-color: #334155; --hover-bg: #334155;
-                --footer-bg: #010409;
-            }
-        }
-
         body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
         .header { background: var(--card-bg); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .container { max-width: 1600px; margin: 0 auto; padding: 2rem; flex: 1; width: 100%; box-sizing: border-box; }
-
-        /* Filter Panel */
-        .filter-panel { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; flex: 1; width: 100%; box-sizing: border-box; }
+        .filter-panel { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .filter-group { display: flex; flex-direction: column; gap: 5px; }
         .filter-group label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
-        
-        /* Action Bar */
-        .action-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 1.5rem; }
-        input[type="text"], select { padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); outline: none; }
-
-        /* Table */
+        input[type="text"], select { padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); outline: none; font-family: inherit; }
         .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { padding: 1rem; font-size: 0.75rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; }
-        td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
-
-        /* Minimalist Footer */
-        footer { background: var(--footer-bg); color: #94a3b8; padding: 3rem 2rem; margin-top: auto; border-top: 1px solid var(--border-color); }
-        .footer-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 2rem; }
-        .footer-brand h4 { color: #fff; margin: 0 0 0.5rem 0; font-size: 1rem; }
-        .footer-links { display: flex; gap: 20px; }
-        .footer-links a { color: inherit; text-decoration: none; font-size: 0.85rem; }
-        .footer-links a:hover { color: var(--accent-color); }
-
-        .badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; }
-        .health-green { background: #dcfce7; color: #166534; } .health-red { background: #fee2e2; color: #991b1b; }
-        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-size: 0.8rem; font-weight: 600; }
-        
-        #install-btn { display: none; background: var(--accent-color); color: white; border: none; }
+        th { padding: 1rem; font-size: 0.7rem; text-transform: uppercase; background: var(--hover-bg); border-bottom: 2px solid var(--border-color); cursor: pointer; color: #64748b; }
+        td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; white-space: nowrap; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.72rem; display: inline-block; }
+        .progress-wrap { width: 60px; height: 5px; background: #eee; border-radius: 3px; margin-top: 5px; }
+        .progress-fill { height: 100%; border-radius: 3px; }
+        .stat-green { background: #dcfce7; color: #166534; }
+        .stat-yellow { background: #fef9c3; color: #854d0e; }
+        .stat-orange { background: #ffedd5; color: #9a3412; }
+        .stat-red { background: #fee2e2; color: #991b1b; }
+        .stat-blue { background: #dbeafe; color: #1e40af; }
+        footer { background: var(--footer-bg); color: #94a3b8; padding: 2.5rem 2rem; margin-top: auto; }
+        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; font-weight: 600; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div id="dashboard-ui">
     <div class="header">
-        <div style="display:flex; align-items:center; gap:15px;">
-            <h2 id="display-title" style="margin:0;">...</h2>
-            <button id="install-btn" class="btn">📲 Install App</button>
-        </div>
+        <h2 id="display-title" style="margin:0; font-size: 1.2rem;">...</h2>
         <div style="display:flex; gap:10px;">
-            <select id="theme-select" class="btn" onchange="setTheme(this.value)">
-                <option value="system">🌓 System</option>
-                <option value="light">☀️ Light</option>
-                <option value="dark">🌙 Dark</option>
-            </select>
-            <button class="btn" onclick="exportToCSV()">📂 CSV</button>
+            <button id="install-btn" class="btn" style="display:none; background:var(--accent-color); color:white; border:none;">📲 Install</button>
+            <select id="theme-select" class="btn" onchange="setTheme(this.value)"></select>
+            <button class="btn" onclick="exportToCSV()">📂 Export</button>
         </div>
     </div>
 
     <div class="container">
         <div class="filter-panel">
             <div class="filter-group">
-                <label>Field</label>
-                <select id="filter-col" onchange="toggleNumericUI(); applyCurrentView()"><option value="all">All Fields</option></select>
+                <label>Column</label>
+                <select id="filter-col" onchange="updateFilterUI(); applyCurrentView()"><option value="all">All Fields</option></select>
             </div>
-            
-            <div class="filter-group" id="numeric-op-group" style="display:none;">
+            <div class="filter-group" id="num-op-group" style="display:none;">
                 <label>Logic</label>
                 <select id="num-op" onchange="applyCurrentView()">
-                    <option value="gt">&gt; Greater Than</option>
-                    <option value="lt">&lt; Less Than</option>
-                    <option value="eq">= Equal To</option>
-                    <option value="gte">&ge; Greater/Equal</option>
-                    <option value="lte">&le; Less/Equal</option>
+                    <option value="eq">=</option><option value="gt">&gt;</option><option value="gte">&ge;</option>
+                    <option value="lt">&lt;</option><option value="lte">&le;</option>
                 </select>
             </div>
-
-            <div class="filter-group">
+            <div class="filter-group" id="match-mode-group">
                 <label>Match</label>
                 <select id="match-mode" onchange="applyCurrentView()">
-                    <option value="like">Contains</option>
-                    <option value="exact">Exact</option>
+                    <option value="like">Contains</option><option value="exact">Exact</option>
                 </select>
             </div>
-
-            <div class="filter-group">
-                <label>Value</label>
-                <input type="text" id="search-bar" placeholder="Type to filter..." oninput="currentPage=1; applyCurrentView()">
-            </div>
-
-            <div style="flex-grow:1"></div>
-            <div class="filter-group">
-                <label>Count</label>
-                <div class="badge health-green" id="stat-total">0</div>
+            <div class="filter-group" style="flex-grow: 1;">
+                <label>Search</label>
+                <input type="text" id="search-bar" placeholder="Enter value..." oninput="currentPage=1; applyCurrentView()" style="width:100%;">
             </div>
         </div>
 
-        <div class="action-bar">
+        <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
             <div id="pagination-controls" style="display:flex; gap:5px;"></div>
             <select id="page-size" onchange="changePageSize(this.value)" class="btn">
-                <option value="25">25 Rows</option><option value="100">100 Rows</option><option value="1000">All</option>
+                <option value="25">25 Rows</option><option value="100">100 Rows</option>
             </select>
-            <button class="btn" onclick="init()">🔄 Sync</button>
         </div>
 
         <div class="table-container">
@@ -128,63 +90,61 @@
     </div>
 
     <footer>
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h4 id="footer-org-name">...</h4>
-                <div id="footer-copyright" style="font-size:0.8rem; opacity:0.6;"></div>
+        <div style="max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div id="footer-org-name" style="color:white; font-weight:bold;">...</div>
+                <div id="footer-copyright" style="font-size:0.7rem; opacity:0.5; margin-top:5px;"></div>
             </div>
-            <div class="footer-links" id="footer-links"></div>
+            <div id="footer-links" style="display:flex; gap:20px;"></div>
         </div>
     </footer>
 </div>
 
-<div id="api-output" style="display:none;"></div>
-
 <script>
-    let rawSystems = [];
-    let currentData = [];
-    let currentPage = 1;
-    let pageSize = 25;
-    let deferredPrompt;
-
-    // PWA Logic
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); deferredPrompt = e;
-        document.getElementById('install-btn').style.display = 'block';
-    });
-    document.getElementById('install-btn').addEventListener('click', async () => {
-        if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; document.getElementById('install-btn').style.display = 'none'; }
-    });
+    let rawSystems = [], currentData = [], columnMapping = {};
+    let currentPage = 1, pageSize = 25;
 
     async function loadConfig() {
-        const res = await fetch('config.json?t=' + Date.now());
-        const conf = await res.json();
-        document.getElementById('display-title').innerText = conf.dashboardTitle;
-        document.getElementById('footer-org-name').innerText = conf.footer.orgName;
-        document.getElementById('footer-copyright').innerText = `© 2026 ${conf.footer.orgName}. Internal Dashboard.`;
-        document.getElementById('footer-links').innerHTML = conf.footer.resources.map(l => `<a href="${l.url}" target="_blank">${l.label}</a>`).join('');
-    }
-
-    function toggleNumericUI() {
-        const col = document.getElementById('filter-col').value;
-        const val = rawSystems[0][col];
-        const isNumeric = !isNaN(parseFloat(val)) && isFinite(val);
-        document.getElementById('numeric-op-group').style.display = isNumeric ? 'flex' : 'none';
-        document.getElementById('match-mode').style.display = isNumeric ? 'none' : 'block';
+        try {
+            const [cR, mR] = await Promise.all([fetch('config.json?t='+Date.now()), fetch('mapping.json?t='+Date.now())]);
+            const conf = await cR.json(); columnMapping = await mR.json();
+            document.getElementById('display-title').innerText = conf.dashboardTitle;
+            document.getElementById('footer-org-name').innerText = conf.footer.orgName;
+            document.getElementById('footer-copyright').innerText = `© 2026 ${conf.footer.orgName}. Data valid as of ${new Date().toLocaleDateString()}`;
+            document.getElementById('footer-links').innerHTML = conf.footer.resources.map(l => `<a href="${l.url}" style="color:inherit; text-decoration:none; font-size:0.75rem;">${l.label}</a>`).join('');
+            
+            const drop = document.getElementById('filter-col');
+            Object.keys(columnMapping).forEach(k => {
+                let o = document.createElement('option'); o.value = k; o.innerText = columnMapping[k]; drop.appendChild(o);
+            });
+        } catch(e) { console.error("Config missing"); }
     }
 
     async function init() {
         const res = await fetch('data.json?t=' + Date.now());
         const data = await res.json();
         rawSystems = data.Systems;
-        if (document.getElementById('filter-col').options.length === 1) {
-            Object.keys(rawSystems[0]).forEach(k => {
-                let o = document.createElement('option'); o.value = k; o.innerText = k;
-                document.getElementById('filter-col').appendChild(o);
-            });
-        }
         applyCurrentView();
+    }
+
+    // Strips strings like "784 Days" or "15GB" to just numbers for filtering
+    function sanitize(val) {
+        if (typeof val !== 'string') return val;
+        let n = parseFloat(val.replace(/[^\d.]/g, ''));
+        return isNaN(n) ? val : n;
+    }
+
+    function updateFilterUI() {
+        const col = document.getElementById('filter-col').value;
+        if(col === 'all') {
+            document.getElementById('num-op-group').style.display = 'none';
+            document.getElementById('match-mode-group').style.display = 'flex';
+            return;
+        }
+        const sample = sanitize(rawSystems[0][col]);
+        const isNum = typeof sample === 'number';
+        document.getElementById('num-op-group').style.display = isNum ? 'flex' : 'none';
+        document.getElementById('match-mode-group').style.display = isNum ? 'none' : 'flex';
     }
 
     function applyCurrentView() {
@@ -195,37 +155,54 @@
 
         currentData = rawSystems.filter(s => {
             if (col === 'all') return Object.values(s).some(v => String(v).toLowerCase().includes(term));
-            
-            let val = s[col];
-            let isNumeric = !isNaN(parseFloat(val)) && isFinite(val);
-
-            if (isNumeric && term !== "") {
-                let nVal = parseFloat(val);
-                let nTerm = parseFloat(term);
-                if (op === 'gt') return nVal > nTerm;
-                if (op === 'lt') return nVal < nTerm;
-                if (op === 'eq') return nVal === nTerm;
-                if (op === 'gte') return nVal >= nTerm;
-                if (op === 'lte') return nVal <= nTerm;
+            let rawV = s[col], val = sanitize(rawV), t = sanitize(term);
+            if (typeof val === 'number' && !isNaN(parseFloat(term)) && document.getElementById('num-op-group').style.display === 'flex') {
+                if (op === 'gt') return val > t; if (op === 'lt') return val < t; if (op === 'eq') return val === t;
+                if (op === 'gte') return val >= t; if (op === 'lte') return val <= t;
             }
-
-            let strV = String(val).toLowerCase();
+            let strV = String(rawV).toLowerCase();
             return isExact ? strV === term : strV.includes(term);
         });
-
-        document.getElementById('stat-total').innerText = currentData.length;
         renderTable();
     }
 
     function renderTable() {
-        const body = document.getElementById('table-body');
-        const head = document.getElementById('table-head');
-        const cols = Object.keys(rawSystems[0]);
-        head.innerHTML = `<tr>${cols.map(c => `<th onclick="sortTable('${c}')">${c} ↕</th>`).join('')}</tr>`;
-        const start = (currentPage - 1) * pageSize;
-        const slice = currentData.slice(start, start + parseInt(pageSize));
-        body.innerHTML = slice.map(r => `<tr>${cols.map(c => `<td data-label="${c}">${r[c]}</td>`).join('')}</tr>`).join('');
+        const head = document.getElementById('table-head'), body = document.getElementById('table-body');
+        const keys = Object.keys(columnMapping);
+        head.innerHTML = `<tr>${keys.map(k => `<th onclick="sortTable('${k}')">${columnMapping[k]} ↕</th>`).join('')}</tr>`;
+        const slice = currentData.slice((currentPage-1)*pageSize, currentPage*pageSize);
+        body.innerHTML = slice.map(row => `<tr>${keys.map(k => `<td>${formatCell(k, row[k])}</td>`).join('')}</tr>`).join('');
         renderPagination();
+    }
+
+    function formatCell(key, val) {
+        if (!val && val !== 0) return '--';
+        
+        if (key === 'ChecksPassed') {
+            const [p, t] = val.split('/').map(Number);
+            const per = (p/t) * 100;
+            const cls = per === 100 ? 'stat-green' : per >= 80 ? 'stat-yellow' : per >= 50 ? 'stat-orange' : 'stat-red';
+            return `<span class="badge ${cls}">${val}</span>`;
+        }
+        
+        if (key === 'FreeDiskSpace') {
+            const n = sanitize(val);
+            const color = n < 10 ? 'var(--red)' : 'var(--green)';
+            return `<strong>${val}</strong><div class="progress-wrap"><div class="progress-fill" style="width:${Math.min(n, 100)}%; background:${color};"></div></div>`;
+        }
+        
+        if (key === 'Uptime') {
+            const n = sanitize(val);
+            const cls = n >= 21 ? 'stat-red' : n >= 7 ? 'stat-orange' : 'stat-green';
+            return `<span class="badge ${cls}">${val}</span>`;
+        }
+
+        const vL = String(val).toLowerCase();
+        if (vL === 'authorized' || vL === 'production') return `<span class="badge stat-blue">${val}</span>`;
+        if (vL === 'pending' || vL === 'global') return `<span class="badge stat-orange">${val}</span>`;
+        if (vL === 'none' || vL === 'denied') return `<span class="badge stat-red">${val}</span>`;
+
+        return val;
     }
 
     function renderPagination() {
@@ -233,24 +210,22 @@
         const totalPages = Math.ceil(currentData.length / pageSize);
         if (totalPages <= 1) { container.innerHTML = ''; return; }
         container.innerHTML = `<button class="btn" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>Prev</button>
-        <span style="font-size:0.8rem; font-weight:bold;">${currentPage} / ${totalPages}</span>
+        <span style="font-weight:bold; font-size:0.8rem; line-height:2.4;">${currentPage} / ${totalPages}</span>
         <button class="btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next</button>`;
     }
 
     function changePage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
     function changePageSize(s) { pageSize = s; currentPage = 1; renderTable(); }
-    function sortTable(c) { currentData.sort((a,b) => a[c] > b[c] ? 1 : -1); renderTable(); }
+    function sortTable(k) { currentData.sort((a,b) => { let av = sanitize(a[k]), bv = sanitize(b[k]); return av > bv ? 1 : -1; }); renderTable(); }
     function setTheme(v) { document.documentElement.setAttribute('data-theme', v); localStorage.setItem('pref-theme', v); }
 
     function exportToCSV() {
-        const cols = Object.keys(rawSystems[0]);
-        const csv = [cols.join(','), ...currentData.map(r => cols.map(c => `"${r[c]}"`).join(','))].join('\n');
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download=`export.csv`; a.click();
+        const keys = Object.keys(columnMapping);
+        const csv = [keys.map(k => columnMapping[k]).join(','), ...currentData.map(r => keys.map(k => `"${r[k]}"`).join(','))].join('\n');
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download=`inventory.csv`; a.click();
     }
 
-    setTheme(localStorage.getItem('pref-theme') || 'system');
-    loadConfig();
-    init();
+    loadConfig().then(init);
 </script>
 </body>
 </html>

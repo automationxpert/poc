@@ -5,7 +5,7 @@
     "description": "Enterprise-grade asset tracking and health monitoring. Data is refreshed automatically via secure PowerShell collection pipelines.",
     "orgName": "Automation Expert Ltd",
     "resources": [
-      {"label": "Internal Wiki", "url": "https://wiki.yourcompany.com"},
+      {"label": "AutomationExpert", "url": "https://automationexpert.dpdns.org"},
       {"label": "On-Call Schedule", "url": "https://pagerduty.com"},
       {"label": "Support Portal", "url": "https://jira.yourcompany.com"}
     ]

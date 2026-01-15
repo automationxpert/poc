@@ -1,0 +1,14 @@
+{
+  "Name": "Machine Name",
+  "Environment": "Env",
+  "Tenant": "Tenant",
+  "Folder": "Folder",
+  "BU": "BU",
+  "Uptime": "Uptime(days)",
+  "Restartgroup": "Restart Group",
+  "MaintenanceGroup": "Maintenance Group",
+  "Restart Authorization": "Restart Auth",
+  "FreeDiskSpace": "Free Disk",
+  "Username": "UserName",
+  "ChecksPassed": "Health"
+}
