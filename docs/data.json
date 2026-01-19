@@ -726,7 +726,10 @@
       "MaintenanceGroup": "MG-Omega",
       "Restart Authorization": "Approved",
       "FreeDiskSpace": "198GB",
-         "Name": "Auth-Service",
+      "ChecksPassed": "5/5"
+    },
+    {
+      "Name": "Auth-Service",
       "Environment": "Staging",
       "Tenant": "Shared",
       "Folder": "/services/auth",
